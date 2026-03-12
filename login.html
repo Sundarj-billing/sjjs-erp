@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>SJJS ERP Login</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+background:#111827;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+color:white;
+}
+
+.box{
+background:#1f2937;
+padding:40px;
+border-radius:10px;
+text-align:center;
+}
+
+input{
+padding:10px;
+margin:10px;
+width:220px;
+}
+
+button{
+padding:10px 20px;
+background:#16a34a;
+border:none;
+color:white;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>SJJS School ERP</h2>
+
+<input id="email" placeholder="Admin Email">
+<br>
+
+<input id="password" type="password" placeholder="Password">
+
+<br><br>
+
+<button onclick="login()">Login</button>
+
+</div>
+
+<script>
+
+const firebaseConfig = {
+apiKey:"AIzaSyArpgBPwqlP5AImr2h32VLmbtaxLr0Bknc",
+authDomain:"sjjs-school-erp.firebaseapp.com",
+projectId:"sjjs-school-erp"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+function login(){
+
+let email=document.getElementById("email").value;
+let pass=document.getElementById("password").value;
+
+firebase.auth().signInWithEmailAndPassword(email,pass)
+
+.then(()=>{
+
+window.location="admin.html";
+
+})
+
+.catch(error=>{
+
+alert(error.message);
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
