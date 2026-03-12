@@ -17,8 +17,10 @@
 body{
 font-family:Segoe UI;
 margin:0;
-background:#f4f6fb;
+background:#eef2f7;
 }
+
+/* SIDEBAR */
 
 .sidebar{
 width:220px;
@@ -46,30 +48,41 @@ border-bottom:1px solid #333;
 background:#1f2937;
 }
 
+/* MAIN */
+
 .main{
 margin-left:220px;
 padding:25px;
 }
 
+/* DASHBOARD CARDS */
+
 .cards{
 display:flex;
-gap:20px;
 flex-wrap:wrap;
+gap:20px;
 }
 
 .card{
-background:white;
-padding:20px;
-border-radius:10px;
-box-shadow:0 3px 10px rgba(0,0,0,0.1);
 flex:1;
 min-width:200px;
+padding:20px;
+border-radius:12px;
+color:white;
+font-weight:bold;
+box-shadow:0 5px 15px rgba(0,0,0,0.15);
 }
+
+.blue{background:#2563eb;}
+.green{background:#16a34a;}
+.orange{background:#f97316;}
+.red{background:#ef4444;}
+.purple{background:#7c3aed;}
 
 table{
 width:100%;
 border-collapse:collapse;
-margin-top:15px;
+margin-top:20px;
 background:white;
 }
 
@@ -85,24 +98,11 @@ border-bottom:1px solid #ddd;
 text-align:center;
 }
 
-input{
-padding:8px;
-margin-top:10px;
-}
-
 canvas{
 background:white;
 padding:20px;
 border-radius:10px;
-margin-top:20px;
-}
-
-.section{
-display:none;
-}
-
-.active{
-display:block;
+margin-top:25px;
 }
 
 </style>
@@ -126,42 +126,67 @@ display:block;
 
 <!-- DASHBOARD -->
 
-<div id="dashboard" class="section active">
+<div id="dashboard">
 
 <h2>Dashboard</h2>
 
 <div class="cards">
 
-<div class="card">
-<h3>Total Students</h3>
-<p id="totalStudents">0</p>
+<div class="card blue">
+Total Students
+<h2 id="totalStudents">0</h2>
 </div>
 
-<div class="card">
-<h3>Total Income</h3>
-<p id="totalIncome">₹0</p>
+<div class="card green">
+Total Income
+<h2 id="totalIncome">₹0</h2>
+</div>
+
+<div class="card orange">
+Today Payment
+<h2 id="todayIncome">₹0</h2>
+</div>
+
+<div class="card red">
+Total Due
+<h2 id="totalDue">₹0</h2>
+</div>
+
+<div class="card purple">
+Due This Month
+<h2 id="monthDue">₹0</h2>
 </div>
 
 </div>
 
 <canvas id="incomeChart"></canvas>
 
+<h3>Due Students</h3>
+
+<table id="dueTable">
+
+<tr>
+<th>Student ID</th>
+<th>Class</th>
+<th>Due Amount</th>
+</tr>
+
+</table>
+
 </div>
 
 <!-- STUDENTS -->
 
-<div id="students" class="section">
+<div id="students" style="display:none">
 
 <h2>Students</h2>
-
-<input id="search" placeholder="Search Student ID" onkeyup="searchStudent()">
 
 <table id="studentTable">
 
 <tr>
 <th>ID</th>
 <th>Class</th>
-<th>Balance Due</th>
+<th>Due</th>
 </tr>
 
 </table>
@@ -170,7 +195,7 @@ display:block;
 
 <!-- PAYMENTS -->
 
-<div id="payments" class="section">
+<div id="payments" style="display:none">
 
 <h2>Payments</h2>
 
@@ -200,53 +225,52 @@ firebase.initializeApp(firebaseConfig);
 
 const db=firebase.firestore();
 
+/* AUTH CHECK */
+
 firebase.auth().onAuthStateChanged(user=>{
 
 if(!user){
-
 window.location="login.html";
-
 }
 
 });
+
+/* LOGOUT */
 
 function logout(){
 
 firebase.auth().signOut().then(()=>{
-
 window.location="login.html";
-
-});
+})
 
 }
+
+/* NAVIGATION */
 
 function show(sec){
 
-document.querySelectorAll(".section").forEach(s=>{
+document.getElementById("dashboard").style.display="none"
+document.getElementById("students").style.display="none"
+document.getElementById("payments").style.display="none"
 
-s.classList.remove("active")
-
-})
-
-document.getElementById(sec).classList.add("active")
+document.getElementById(sec).style.display="block"
 
 }
 
-let studentsCache=[]
+/* STUDENTS */
 
 function loadStudents(){
 
 db.collection("students_billing").onSnapshot(snap=>{
 
 let table=document.getElementById("studentTable")
+let dueTable=document.getElementById("dueTable")
 
-table.innerHTML=`<tr>
-<th>ID</th>
-<th>Class</th>
-<th>Balance Due</th>
-</tr>`
+table.innerHTML=`<tr><th>ID</th><th>Class</th><th>Due</th></tr>`
+dueTable.innerHTML=`<tr><th>Student ID</th><th>Class</th><th>Due Amount</th></tr>`
 
-studentsCache=[]
+let totalDue=0
+let monthDue=0
 
 document.getElementById("totalStudents").innerText=snap.size
 
@@ -254,59 +278,44 @@ snap.forEach(doc=>{
 
 let s=doc.data()
 
-studentsCache.push({
-id:doc.id,
-class:s.Class,
-due:s.Balance_Due
-})
+let due=s.Balance_Due || 0
+
+totalDue+=due
+
+if(s.Month){
+monthDue+=due
+}
 
 table.innerHTML+=`
-
 <tr>
 <td>${doc.id}</td>
 <td>${s.Class}</td>
-<td>₹${s.Balance_Due}</td>
+<td>₹${due}</td>
 </tr>
-
 `
 
-})
+if(due>0){
 
-})
-
-}
-
-function searchStudent(){
-
-let val=document.getElementById("search").value.toLowerCase()
-
-let table=document.getElementById("studentTable")
-
-table.innerHTML=`<tr>
-<th>ID</th>
-<th>Class</th>
-<th>Balance Due</th>
-</tr>`
-
-studentsCache.forEach(s=>{
-
-if(s.id.toLowerCase().includes(val)){
-
-table.innerHTML+=`
-
+dueTable.innerHTML+=`
 <tr>
-<td>${s.id}</td>
-<td>${s.class}</td>
-<td>₹${s.due}</td>
+<td>${doc.id}</td>
+<td>${s.Class}</td>
+<td>₹${due}</td>
 </tr>
-
 `
 
 }
 
 })
 
+document.getElementById("totalDue").innerText="₹"+totalDue
+document.getElementById("monthDue").innerText="₹"+monthDue
+
+})
+
 }
+
+/* PAYMENTS */
 
 function loadPayments(){
 
@@ -314,13 +323,12 @@ db.collection("payments").onSnapshot(snap=>{
 
 let table=document.getElementById("paymentTable")
 
-table.innerHTML=`<tr>
-<th>Student</th>
-<th>Amount</th>
-<th>Date</th>
-</tr>`
+table.innerHTML=`<tr><th>Student</th><th>Amount</th><th>Date</th></tr>`
 
 let income=0
+let today=0
+
+let todayDate=new Date().toLocaleDateString()
 
 snap.forEach(doc=>{
 
@@ -328,25 +336,30 @@ let p=doc.data()
 
 income+=p.amount
 
-table.innerHTML+=`
+if(p.date===todayDate){
+today+=p.amount
+}
 
+table.innerHTML+=`
 <tr>
 <td>${p.student}</td>
 <td>₹${p.amount}</td>
 <td>${p.date}</td>
 </tr>
-
 `
 
 })
 
 document.getElementById("totalIncome").innerText="₹"+income
+document.getElementById("todayIncome").innerText="₹"+today
 
 updateChart(income)
 
 })
 
 }
+
+/* CHART */
 
 let chart
 
@@ -363,8 +376,9 @@ type:'bar',
 data:{
 labels:['Total Income'],
 datasets:[{
-label:'School Income',
-data:[income]
+label:'Income',
+data:[income],
+backgroundColor:'#16a34a'
 }]
 }
 
