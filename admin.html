@@ -64,6 +64,19 @@ flex:1;
 min-width:200px;
 }
 
+input{
+padding:8px;
+margin:5px;
+}
+
+button{
+background:#16a34a;
+color:white;
+border:none;
+padding:8px 12px;
+cursor:pointer;
+}
+
 table{
 width:100%;
 border-collapse:collapse;
@@ -93,11 +106,16 @@ text-align:center;
 
 <div class="logo">SJJS ERP</div>
 
+<a onclick="showSection('dashboard')">Dashboard</a>
+<a onclick="showSection('students')">Students</a>
+<a onclick="showSection('payments')">Payments</a>
 <a onclick="logout()">Logout</a>
 
 </div>
 
 <div class="main">
+
+<div id="dashboard">
 
 <h2>Dashboard</h2>
 
@@ -112,6 +130,40 @@ text-align:center;
 <h3>Total Income</h3>
 <p id="totalIncome">₹0</p>
 </div>
+
+</div>
+
+</div>
+
+<div id="students" style="display:none">
+
+<h2>Students</h2>
+
+<table id="studentTable">
+
+<tr>
+<th>ID</th>
+<th>Class</th>
+<th>Due</th>
+</tr>
+
+</table>
+
+</div>
+
+<div id="payments" style="display:none">
+
+<h2>Payments</h2>
+
+<table id="paymentTable">
+
+<tr>
+<th>Student</th>
+<th>Amount</th>
+<th>Date</th>
+</tr>
+
+</table>
 
 </div>
 
@@ -148,6 +200,91 @@ window.location="login.html";
 });
 
 }
+
+function showSection(sec){
+
+document.getElementById("dashboard").style.display="none";
+document.getElementById("students").style.display="none";
+document.getElementById("payments").style.display="none";
+
+document.getElementById(sec).style.display="block";
+
+}
+
+function loadStudents(){
+
+db.collection("students_billing").onSnapshot(snap=>{
+
+let table=document.getElementById("studentTable");
+
+table.innerHTML=`<tr>
+<th>ID</th>
+<th>Class</th>
+<th>Due</th>
+</tr>`;
+
+document.getElementById("totalStudents").innerText=snap.size;
+
+snap.forEach(doc=>{
+
+let s=doc.data();
+
+table.innerHTML+=`
+
+<tr>
+<td>${doc.id}</td>
+<td>${s.Class}</td>
+<td>₹${s.Balance_Due}</td>
+</tr>
+
+`;
+
+});
+
+});
+
+}
+
+function loadPayments(){
+
+db.collection("payments").onSnapshot(snap=>{
+
+let table=document.getElementById("paymentTable");
+
+table.innerHTML=`<tr>
+<th>Student</th>
+<th>Amount</th>
+<th>Date</th>
+</tr>`;
+
+let income=0;
+
+snap.forEach(doc=>{
+
+let p=doc.data();
+
+income+=p.amount;
+
+table.innerHTML+=`
+
+<tr>
+<td>${p.student}</td>
+<td>₹${p.amount}</td>
+<td>${p.date}</td>
+</tr>
+
+`;
+
+});
+
+document.getElementById("totalIncome").innerText="₹"+income;
+
+});
+
+}
+
+loadStudents();
+loadPayments();
 
 </script>
 
