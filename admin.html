@@ -2,13 +2,15 @@
 <html>
 <head>
 
-<title>SJJS PRO ERP</title>
+<title>SJJS SUPER ERP</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
@@ -64,19 +66,6 @@ flex:1;
 min-width:200px;
 }
 
-input{
-padding:8px;
-margin:5px;
-}
-
-button{
-background:#16a34a;
-color:white;
-border:none;
-padding:8px 12px;
-cursor:pointer;
-}
-
 table{
 width:100%;
 border-collapse:collapse;
@@ -96,6 +85,26 @@ border-bottom:1px solid #ddd;
 text-align:center;
 }
 
+input{
+padding:8px;
+margin-top:10px;
+}
+
+canvas{
+background:white;
+padding:20px;
+border-radius:10px;
+margin-top:20px;
+}
+
+.section{
+display:none;
+}
+
+.active{
+display:block;
+}
+
 </style>
 
 </head>
@@ -106,16 +115,18 @@ text-align:center;
 
 <div class="logo">SJJS ERP</div>
 
-<a onclick="showSection('dashboard')">Dashboard</a>
-<a onclick="showSection('students')">Students</a>
-<a onclick="showSection('payments')">Payments</a>
+<a onclick="show('dashboard')">Dashboard</a>
+<a onclick="show('students')">Students</a>
+<a onclick="show('payments')">Payments</a>
 <a onclick="logout()">Logout</a>
 
 </div>
 
 <div class="main">
 
-<div id="dashboard">
+<!-- DASHBOARD -->
+
+<div id="dashboard" class="section active">
 
 <h2>Dashboard</h2>
 
@@ -133,25 +144,33 @@ text-align:center;
 
 </div>
 
+<canvas id="incomeChart"></canvas>
+
 </div>
 
-<div id="students" style="display:none">
+<!-- STUDENTS -->
+
+<div id="students" class="section">
 
 <h2>Students</h2>
+
+<input id="search" placeholder="Search Student ID" onkeyup="searchStudent()">
 
 <table id="studentTable">
 
 <tr>
 <th>ID</th>
 <th>Class</th>
-<th>Due</th>
+<th>Balance Due</th>
 </tr>
 
 </table>
 
 </div>
 
-<div id="payments" style="display:none">
+<!-- PAYMENTS -->
+
+<div id="payments" class="section">
 
 <h2>Payments</h2>
 
@@ -201,33 +220,45 @@ window.location="login.html";
 
 }
 
-function showSection(sec){
+function show(sec){
 
-document.getElementById("dashboard").style.display="none";
-document.getElementById("students").style.display="none";
-document.getElementById("payments").style.display="none";
+document.querySelectorAll(".section").forEach(s=>{
 
-document.getElementById(sec).style.display="block";
+s.classList.remove("active")
+
+})
+
+document.getElementById(sec).classList.add("active")
 
 }
+
+let studentsCache=[]
 
 function loadStudents(){
 
 db.collection("students_billing").onSnapshot(snap=>{
 
-let table=document.getElementById("studentTable");
+let table=document.getElementById("studentTable")
 
 table.innerHTML=`<tr>
 <th>ID</th>
 <th>Class</th>
-<th>Due</th>
-</tr>`;
+<th>Balance Due</th>
+</tr>`
 
-document.getElementById("totalStudents").innerText=snap.size;
+studentsCache=[]
+
+document.getElementById("totalStudents").innerText=snap.size
 
 snap.forEach(doc=>{
 
-let s=doc.data();
+let s=doc.data()
+
+studentsCache.push({
+id:doc.id,
+class:s.Class,
+due:s.Balance_Due
+})
 
 table.innerHTML+=`
 
@@ -237,11 +268,43 @@ table.innerHTML+=`
 <td>₹${s.Balance_Due}</td>
 </tr>
 
-`;
+`
 
-});
+})
 
-});
+})
+
+}
+
+function searchStudent(){
+
+let val=document.getElementById("search").value.toLowerCase()
+
+let table=document.getElementById("studentTable")
+
+table.innerHTML=`<tr>
+<th>ID</th>
+<th>Class</th>
+<th>Balance Due</th>
+</tr>`
+
+studentsCache.forEach(s=>{
+
+if(s.id.toLowerCase().includes(val)){
+
+table.innerHTML+=`
+
+<tr>
+<td>${s.id}</td>
+<td>${s.class}</td>
+<td>₹${s.due}</td>
+</tr>
+
+`
+
+}
+
+})
 
 }
 
@@ -249,21 +312,21 @@ function loadPayments(){
 
 db.collection("payments").onSnapshot(snap=>{
 
-let table=document.getElementById("paymentTable");
+let table=document.getElementById("paymentTable")
 
 table.innerHTML=`<tr>
 <th>Student</th>
 <th>Amount</th>
 <th>Date</th>
-</tr>`;
+</tr>`
 
-let income=0;
+let income=0
 
 snap.forEach(doc=>{
 
-let p=doc.data();
+let p=doc.data()
 
-income+=p.amount;
+income+=p.amount
 
 table.innerHTML+=`
 
@@ -273,18 +336,44 @@ table.innerHTML+=`
 <td>${p.date}</td>
 </tr>
 
-`;
+`
 
-});
+})
 
-document.getElementById("totalIncome").innerText="₹"+income;
+document.getElementById("totalIncome").innerText="₹"+income
 
-});
+updateChart(income)
+
+})
 
 }
 
-loadStudents();
-loadPayments();
+let chart
+
+function updateChart(income){
+
+let ctx=document.getElementById("incomeChart")
+
+if(chart) chart.destroy()
+
+chart=new Chart(ctx,{
+
+type:'bar',
+
+data:{
+labels:['Total Income'],
+datasets:[{
+label:'School Income',
+data:[income]
+}]
+}
+
+})
+
+}
+
+loadStudents()
+loadPayments()
 
 </script>
 
