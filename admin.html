@@ -20,8 +20,6 @@ margin:0;
 background:#eef2f7;
 }
 
-/* SIDEBAR */
-
 .sidebar{
 width:220px;
 height:100vh;
@@ -48,14 +46,10 @@ border-bottom:1px solid #333;
 background:#1f2937;
 }
 
-/* MAIN */
-
 .main{
 margin-left:220px;
 padding:25px;
 }
-
-/* DASHBOARD CARDS */
 
 .cards{
 display:flex;
@@ -105,6 +99,13 @@ border-radius:10px;
 margin-top:25px;
 }
 
+.paid{color:#16a34a;font-weight:bold;}
+.partial{color:#f59e0b;font-weight:bold;}
+.due{color:#ef4444;font-weight:bold;}
+
+.section{display:none;}
+.active{display:block;}
+
 </style>
 
 </head>
@@ -126,7 +127,7 @@ margin-top:25px;
 
 <!-- DASHBOARD -->
 
-<div id="dashboard">
+<div id="dashboard" class="section active">
 
 <h2>Dashboard</h2>
 
@@ -164,20 +165,18 @@ Due This Month
 <h3>Due Students</h3>
 
 <table id="dueTable">
-
 <tr>
 <th>Student ID</th>
 <th>Class</th>
 <th>Due Amount</th>
 </tr>
-
 </table>
 
 </div>
 
 <!-- STUDENTS -->
 
-<div id="students" style="display:none">
+<div id="students" class="section">
 
 <h2>Students</h2>
 
@@ -186,7 +185,9 @@ Due This Month
 <tr>
 <th>ID</th>
 <th>Class</th>
+<th>Fee</th>
 <th>Due</th>
+<th>Status</th>
 </tr>
 
 </table>
@@ -195,7 +196,7 @@ Due This Month
 
 <!-- PAYMENTS -->
 
-<div id="payments" style="display:none">
+<div id="payments" class="section">
 
 <h2>Payments</h2>
 
@@ -249,15 +250,25 @@ window.location="login.html";
 
 function show(sec){
 
-document.getElementById("dashboard").style.display="none"
-document.getElementById("students").style.display="none"
-document.getElementById("payments").style.display="none"
+document.querySelectorAll(".section").forEach(s=>{
+s.classList.remove("active")
+})
 
-document.getElementById(sec).style.display="block"
+document.getElementById(sec).classList.add("active")
 
 }
 
-/* STUDENTS */
+/* STATUS FUNCTION */
+
+function getStatus(fee,due){
+
+if(due==0) return "Paid"
+if(due<fee) return "Partial"
+return "Due"
+
+}
+
+/* LOAD STUDENTS */
 
 function loadStudents(){
 
@@ -266,8 +277,13 @@ db.collection("students_billing").onSnapshot(snap=>{
 let table=document.getElementById("studentTable")
 let dueTable=document.getElementById("dueTable")
 
-table.innerHTML=`<tr><th>ID</th><th>Class</th><th>Due</th></tr>`
-dueTable.innerHTML=`<tr><th>Student ID</th><th>Class</th><th>Due Amount</th></tr>`
+table.innerHTML=`<tr>
+<th>ID</th><th>Class</th><th>Fee</th><th>Due</th><th>Status</th>
+</tr>`
+
+dueTable.innerHTML=`<tr>
+<th>Student ID</th><th>Class</th><th>Due Amount</th>
+</tr>`
 
 let totalDue=0
 let monthDue=0
@@ -278,30 +294,36 @@ snap.forEach(doc=>{
 
 let s=doc.data()
 
+let fee=s.Monthly_Fee || 0
 let due=s.Balance_Due || 0
 
-totalDue+=due
+let status=getStatus(fee,due)
 
-if(s.Month){
+totalDue+=due
 monthDue+=due
-}
 
 table.innerHTML+=`
+
 <tr>
 <td>${doc.id}</td>
 <td>${s.Class}</td>
+<td>₹${fee}</td>
 <td>₹${due}</td>
+<td class="${status.toLowerCase()}">${status}</td>
 </tr>
+
 `
 
 if(due>0){
 
 dueTable.innerHTML+=`
+
 <tr>
 <td>${doc.id}</td>
 <td>${s.Class}</td>
 <td>₹${due}</td>
 </tr>
+
 `
 
 }
@@ -315,7 +337,7 @@ document.getElementById("monthDue").innerText="₹"+monthDue
 
 }
 
-/* PAYMENTS */
+/* LOAD PAYMENTS */
 
 function loadPayments(){
 
@@ -323,7 +345,9 @@ db.collection("payments").onSnapshot(snap=>{
 
 let table=document.getElementById("paymentTable")
 
-table.innerHTML=`<tr><th>Student</th><th>Amount</th><th>Date</th></tr>`
+table.innerHTML=`<tr>
+<th>Student</th><th>Amount</th><th>Date</th>
+</tr>`
 
 let income=0
 let today=0
@@ -341,11 +365,13 @@ today+=p.amount
 }
 
 table.innerHTML+=`
+
 <tr>
 <td>${p.student}</td>
 <td>₹${p.amount}</td>
 <td>${p.date}</td>
 </tr>
+
 `
 
 })
@@ -374,7 +400,7 @@ chart=new Chart(ctx,{
 type:'bar',
 
 data:{
-labels:['Total Income'],
+labels:['School Income'],
 datasets:[{
 label:'Income',
 data:[income],
