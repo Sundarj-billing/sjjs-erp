@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>SJJS Parent Portal</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#eef2f7;
+padding:40px;
+text-align:center;
+}
+
+.box{
+background:white;
+padding:25px;
+border-radius:10px;
+width:350px;
+margin:auto;
+box-shadow:0 5px 20px rgba(0,0,0,0.2);
+}
+
+input{
+padding:10px;
+width:220px;
+margin:10px;
+}
+
+button{
+padding:10px 20px;
+background:#2563eb;
+border:none;
+color:white;
+cursor:pointer;
+}
+
+.result{
+margin-top:20px;
+text-align:left;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Parent Portal</h2>
+
+<input id="studentID" placeholder="Enter Student ID">
+
+<button onclick="searchStudent()">Search</button>
+
+<div class="result" id="result"></div>
+
+</div>
+
+<script>
+
+async function searchStudent(){
+
+let id=document.getElementById("studentID").value
+
+let sheetURL="YOUR_GOOGLE_SHEET_API_LINK"
+
+let res=await fetch(sheetURL)
+
+let data=await res.json()
+
+let student=data.find(s=>s.Student_ID==id)
+
+if(student){
+
+document.getElementById("result").innerHTML=`
+
+<p><b>Name:</b> ${student.Student_Name}</p>
+
+<p><b>Class:</b> ${student.Class}</p>
+
+<p><b>Monthly Fee:</b> ₹${student.Monthly_Fee}</p>
+
+<p><b>Due Amount:</b> ₹${student.Balance_Due}</p>
+
+<button onclick="payNow(${student.Balance_Due})">Pay Now</button>
+
+`
+
+}else{
+
+document.getElementById("result").innerHTML="Student not found"
+
+}
+
+}
+
+function payNow(amount){
+
+let charge=amount*0.02
+
+let total=amount+charge
+
+alert("Payment Amount with 2% charge : ₹"+total)
+
+}
+
+</script>
+
+</body>
+</html>
