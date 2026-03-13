@@ -167,6 +167,7 @@ Due This Month
 <table id="dueTable">
 <tr>
 <th>Student ID</th>
+<th>Name</th>
 <th>Class</th>
 <th>Due Amount</th>
 </tr>
@@ -184,6 +185,7 @@ Due This Month
 
 <tr>
 <th>ID</th>
+<th>Name</th>
 <th>Class</th>
 <th>Fee</th>
 <th>Due</th>
@@ -278,11 +280,11 @@ let table=document.getElementById("studentTable")
 let dueTable=document.getElementById("dueTable")
 
 table.innerHTML=`<tr>
-<th>ID</th><th>Class</th><th>Fee</th><th>Due</th><th>Status</th>
+<th>ID</th><th>Name</th><th>Class</th><th>Fee</th><th>Due</th><th>Status</th>
 </tr>`
 
 dueTable.innerHTML=`<tr>
-<th>Student ID</th><th>Class</th><th>Due Amount</th>
+<th>Student ID</th><th>Name</th><th>Class</th><th>Due Amount</th>
 </tr>`
 
 let totalDue=0
@@ -306,6 +308,7 @@ table.innerHTML+=`
 
 <tr>
 <td>${doc.id}</td>
+<td>${doc.name}</td>
 <td>${s.Class}</td>
 <td>₹${fee}</td>
 <td>₹${due}</td>
@@ -320,6 +323,7 @@ dueTable.innerHTML+=`
 
 <tr>
 <td>${doc.id}</td>
+<td>${doc.name}</td>
 <td>${s.Class}</td>
 <td>₹${due}</td>
 </tr>
