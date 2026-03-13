@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>SJJS Parent Portal</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#eef2f7;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.box{
+background:white;
+padding:30px;
+border-radius:10px;
+box-shadow:0 5px 20px rgba(0,0,0,0.2);
+text-align:center;
+}
+
+input{
+padding:10px;
+margin:10px;
+width:220px;
+}
+
+button{
+padding:10px 20px;
+background:#2563eb;
+border:none;
+color:white;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>SJJS Parent Login</h2>
+
+<div id="step1">
+
+<input id="phone" placeholder="Enter Phone Number">
+
+<button onclick="sendOTP()">Send OTP</button>
+
+</div>
+
+<div id="step2" style="display:none">
+
+<input id="otp" placeholder="Enter OTP">
+
+<button onclick="verifyOTP()">Verify</button>
+
+</div>
+
+</div>
+
+<script>
+
+let generatedOTP=""
+
+function sendOTP(){
+
+let phone=document.getElementById("phone").value
+
+if(phone.length<10){
+alert("Enter valid phone number")
+return
+}
+
+generatedOTP=Math.floor(1000+Math.random()*9000)
+
+alert("Demo OTP : "+generatedOTP)
+
+document.getElementById("step1").style.display="none"
+document.getElementById("step2").style.display="block"
+
+}
+
+function verifyOTP(){
+
+let otp=document.getElementById("otp").value
+
+if(otp==generatedOTP){
+
+window.location="parent-dashboard.html"
+
+}else{
+
+alert("Wrong OTP")
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
