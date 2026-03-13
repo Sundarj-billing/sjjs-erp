@@ -300,7 +300,7 @@ let fee=s.Monthly_Fee || 0
 let due=s.Balance_Due || 0
 
 let status=getStatus(fee,due)
-const s = doc.data();
+
   
 totalDue+=due
 monthDue+=due
@@ -309,7 +309,7 @@ table.innerHTML+=`
 
 <tr>
 <td>${doc.id}</td>
-<td>${s.name}</td>
+<td>${s.Student_Name}</td>
 <td>${s.Class}</td>
 <td>₹${fee}</td>
 <td>₹${due}</td>
@@ -324,7 +324,7 @@ dueTable.innerHTML+=`
 
 <tr>
 <td>${doc.id}</td>
-<td>${s.name}</td>
+<td>${s.Student_Name}</td>
 <td>${s.Class}</td>
 <td>₹${due}</td>
 </tr>
