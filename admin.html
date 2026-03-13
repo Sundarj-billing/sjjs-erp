@@ -180,7 +180,7 @@ Due This Month
 <div id="students" class="section">
 
 <h2>Students</h2>
-
+<input id="search" placeholder="Search by ID or Name" onkeyup="searchStudent()" style="padding:8px;margin-bottom:10px;">
 <table id="studentTable">
 
 <tr>
@@ -227,7 +227,8 @@ projectId:"sjjs-school-erp"
 firebase.initializeApp(firebaseConfig);
 
 const db=firebase.firestore();
-
+let studentsCache=[]
+  
 /* AUTH CHECK */
 
 firebase.auth().onAuthStateChanged(user=>{
@@ -280,11 +281,11 @@ let table=document.getElementById("studentTable")
 let dueTable=document.getElementById("dueTable")
 
 table.innerHTML=`<tr>
-<th>ID</th><th>Name</th><th>Class</th><th>Fee</th><th>Due</th><th>Status</th>
+<th>ID</th><th>Student_Name</th><th>Class</th><th>Fee</th><th>Due</th><th>Status</th>
 </tr>`
 
 dueTable.innerHTML=`<tr>
-<th>Student ID</th><th>Name</th><th>Class</th><th>Due Amount</th>
+<th>Student ID</th><th>Student_Name</th><th>Class</th><th>Due Amount</th>
 </tr>`
 
 let totalDue=0
@@ -301,6 +302,14 @@ let due=s.Balance_Due || 0
 
 let status=getStatus(fee,due)
 
+  studentsCache.push({
+id:doc.id,
+name:s.Student_Name,
+class:s.Class,
+fee:fee,
+due:due,
+status:status
+})
   
 totalDue+=due
 monthDue+=due
@@ -417,6 +426,47 @@ backgroundColor:'#16a34a'
 
 }
 
+function searchStudent(){
+
+let val=document.getElementById("search").value.toLowerCase()
+
+let table=document.getElementById("studentTable")
+
+table.innerHTML=`<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Class</th>
+<th>Fee</th>
+<th>Due</th>
+<th>Status</th>
+</tr>`
+
+studentsCache.forEach(s=>{
+
+if(
+s.id.toLowerCase().includes(val) ||
+s.name.toLowerCase().includes(val)
+){
+
+table.innerHTML+=`
+
+<tr>
+<td>${s.id}</td>
+<td>${s.name}</td>
+<td>${s.class}</td>
+<td>₹${s.fee}</td>
+<td>₹${s.due}</td>
+<td class="${s.status.toLowerCase()}">${s.status}</td>
+</tr>
+
+`
+
+}
+
+})
+
+}
+  
 loadStudents()
 loadPayments()
 
