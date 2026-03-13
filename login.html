@@ -54,18 +54,30 @@ cursor:pointer;
 <input id="password" type="password" placeholder="Password">
 
 <button onclick="login()">Login</button>
-  
+
 </div>
 
 <script>
 
-const firebaseConfig = {
+const firebaseConfig={
 apiKey:"AIzaSyArpgBPwqlP5AImr2h32VLmbtaxLr0Bknc",
 authDomain:"sjjs-school-erp.firebaseapp.com",
 projectId:"sjjs-school-erp"
 };
 
 firebase.initializeApp(firebaseConfig);
+
+/* CHECK LOGIN SESSION */
+
+firebase.auth().onAuthStateChanged(user=>{
+
+if(user){
+window.location="admin.html"
+}
+
+})
+
+/* LOGIN FUNCTION */
 
 function login(){
 
@@ -87,6 +99,7 @@ alert(err.message)
 })
 
 }
+
 </script>
 
 </body>
