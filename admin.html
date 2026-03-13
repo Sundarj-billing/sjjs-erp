@@ -300,7 +300,8 @@ let fee=s.Monthly_Fee || 0
 let due=s.Balance_Due || 0
 
 let status=getStatus(fee,due)
-
+const s = doc.data();
+  
 totalDue+=due
 monthDue+=due
 
