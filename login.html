@@ -51,14 +51,10 @@ cursor:pointer;
 <h2>SJJS School ERP</h2>
 
 <input id="email" placeholder="Admin Email">
-<br>
-
 <input id="password" type="password" placeholder="Password">
 
-<br><br>
-
 <button onclick="login()">Login</button>
-
+  
 </div>
 
 <script>
@@ -73,25 +69,24 @@ firebase.initializeApp(firebaseConfig);
 
 function login(){
 
-let email=document.getElementById("email").value;
-let pass=document.getElementById("password").value;
+let email=document.getElementById("email").value
+let pass=document.getElementById("password").value
 
 firebase.auth().signInWithEmailAndPassword(email,pass)
 
 .then(()=>{
 
-window.location="admin.html";
+window.location="admin.html"
 
 })
 
-.catch(error=>{
+.catch(err=>{
 
-alert(error.message);
+alert(err.message)
 
-});
+})
 
 }
-
 </script>
 
 </body>
