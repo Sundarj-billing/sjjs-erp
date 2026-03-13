@@ -49,6 +49,8 @@ background:#1f2937;
 .main{
 margin-left:220px;
 padding:25px;
+background:linear-gradient(135deg,#eef2ff,#f8fafc);
+min-height:100vh;
 }
 
 .cards{
@@ -125,8 +127,6 @@ margin-top:25px;
 
 <div class="main">
 
-<!-- DASHBOARD -->
-
 <div id="dashboard" class="section active">
 
 <h2>Dashboard</h2>
@@ -149,12 +149,12 @@ Today Payment
 </div>
 
 <div class="card red">
-Total Due
-<h2 id="totalDue">₹0</h2>
+Collection This Month
+<h2 id="monthCollection">₹0</h2>
 </div>
 
 <div class="card purple">
-Due This Month
+Total Due
 <h2 id="monthDue">₹0</h2>
 </div>
 
@@ -166,21 +166,21 @@ Due This Month
 
 <table id="dueTable">
 <tr>
-<th>Student ID</th>
+<th>ID</th>
 <th>Name</th>
 <th>Class</th>
-<th>Due Amount</th>
+<th>Due</th>
 </tr>
 </table>
 
 </div>
 
-<!-- STUDENTS -->
-
 <div id="students" class="section">
 
 <h2>Students</h2>
-<input id="search" placeholder="Search by ID or Name" onkeyup="searchStudent()" style="padding:8px;margin-bottom:10px;">
+
+<input id="search" placeholder="Search by ID or Name" onkeyup="searchStudent()">
+
 <table id="studentTable">
 
 <tr>
@@ -195,8 +195,6 @@ Due This Month
 </table>
 
 </div>
-
-<!-- PAYMENTS -->
 
 <div id="payments" class="section">
 
@@ -219,37 +217,26 @@ Due This Month
 <script>
 
 const firebaseConfig={
-apiKey:"AIzaSyArpgBPwqlP5AImr2h32VLmbtaxLr0Bknc",
+apiKey:"YOUR_API_KEY",
 authDomain:"sjjs-school-erp.firebaseapp.com",
 projectId:"sjjs-school-erp"
 };
 
 firebase.initializeApp(firebaseConfig);
 
-const db=firebase.firestore();
+const db=firebase.firestore()
+
 let studentsCache=[]
-  
-/* AUTH CHECK */
 
 firebase.auth().onAuthStateChanged(user=>{
-
-if(!user){
-window.location="login.html";
-}
-
-});
-
-/* LOGOUT */
-
-function logout(){
-
-firebase.auth().signOut().then(()=>{
-window.location="login.html";
+if(!user) window.location="login.html"
 })
 
+function logout(){
+firebase.auth().signOut().then(()=>{
+window.location="login.html"
+})
 }
-
-/* NAVIGATION */
 
 function show(sec){
 
@@ -261,8 +248,6 @@ document.getElementById(sec).classList.add("active")
 
 }
 
-/* STATUS FUNCTION */
-
 function getStatus(fee,due){
 
 if(due==0) return "Paid"
@@ -271,25 +256,24 @@ return "Due"
 
 }
 
-/* LOAD STUDENTS */
-
 function loadStudents(){
 
 db.collection("students_billing").onSnapshot(snap=>{
+
+studentsCache=[]
 
 let table=document.getElementById("studentTable")
 let dueTable=document.getElementById("dueTable")
 
 table.innerHTML=`<tr>
-<th>ID</th><th>Student_Name</th><th>Class</th><th>Fee</th><th>Due</th><th>Status</th>
+<th>ID</th><th>Name</th><th>Class</th><th>Fee</th><th>Due</th><th>Status</th>
 </tr>`
 
 dueTable.innerHTML=`<tr>
-<th>Student ID</th><th>Student_Name</th><th>Class</th><th>Due Amount</th>
+<th>ID</th><th>Name</th><th>Class</th><th>Due</th>
 </tr>`
 
 let totalDue=0
-let monthDue=0
 
 document.getElementById("totalStudents").innerText=snap.size
 
@@ -302,7 +286,7 @@ let due=s.Balance_Due || 0
 
 let status=getStatus(fee,due)
 
-  studentsCache.push({
+studentsCache.push({
 id:doc.id,
 name:s.Student_Name,
 class:s.Class,
@@ -310,12 +294,10 @@ fee:fee,
 due:due,
 status:status
 })
-  
+
 totalDue+=due
-monthDue+=due
 
 table.innerHTML+=`
-
 <tr>
 <td>${doc.id}</td>
 <td>${s.Student_Name}</td>
@@ -324,34 +306,28 @@ table.innerHTML+=`
 <td>₹${due}</td>
 <td class="${status.toLowerCase()}">${status}</td>
 </tr>
-
 `
 
 if(due>0){
 
 dueTable.innerHTML+=`
-
 <tr>
 <td>${doc.id}</td>
 <td>${s.Student_Name}</td>
 <td>${s.Class}</td>
 <td>₹${due}</td>
 </tr>
-
 `
 
 }
 
 })
 
-document.getElementById("totalDue").innerText="₹"+totalDue
-document.getElementById("monthDue").innerText="₹"+monthDue
+document.getElementById("monthDue").innerText="₹"+totalDue
 
 })
 
 }
-
-/* LOAD PAYMENTS */
 
 function loadPayments(){
 
@@ -365,8 +341,12 @@ table.innerHTML=`<tr>
 
 let income=0
 let today=0
+let monthTotal=0
 
 let todayDate=new Date().toLocaleDateString()
+let currentMonth=new Date().getMonth()
+
+let months=[0,0,0,0,0,0,0,0,0,0,0,0]
 
 snap.forEach(doc=>{
 
@@ -374,54 +354,58 @@ let p=doc.data()
 
 income+=p.amount
 
+let d=new Date(p.date)
+
 if(p.date===todayDate){
 today+=p.amount
 }
 
-table.innerHTML+=`
+let m=d.getMonth()
 
+months[m]+=p.amount
+
+if(m===currentMonth){
+monthTotal+=p.amount
+}
+
+table.innerHTML+=`
 <tr>
 <td>${p.student}</td>
 <td>₹${p.amount}</td>
 <td>${p.date}</td>
 </tr>
-
 `
 
 })
 
 document.getElementById("totalIncome").innerText="₹"+income
 document.getElementById("todayIncome").innerText="₹"+today
+document.getElementById("monthCollection").innerText="₹"+monthTotal
 
-updateChart(income)
+updateChart(months)
 
 })
 
 }
 
-/* CHART */
-
 let chart
 
-function updateChart(income){
+function updateChart(months){
 
 let ctx=document.getElementById("incomeChart")
 
 if(chart) chart.destroy()
 
 chart=new Chart(ctx,{
-
 type:'bar',
-
 data:{
-labels:['School Income'],
+labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
 datasets:[{
-label:'Income',
-data:[income],
+label:'Monthly Income',
+data:months,
 backgroundColor:'#16a34a'
 }]
 }
-
 })
 
 }
@@ -449,7 +433,6 @@ s.name.toLowerCase().includes(val)
 ){
 
 table.innerHTML+=`
-
 <tr>
 <td>${s.id}</td>
 <td>${s.name}</td>
@@ -458,7 +441,6 @@ table.innerHTML+=`
 <td>₹${s.due}</td>
 <td class="${s.status.toLowerCase()}">${s.status}</td>
 </tr>
-
 `
 
 }
@@ -466,7 +448,7 @@ table.innerHTML+=`
 })
 
 }
-  
+
 loadStudents()
 loadPayments()
 
