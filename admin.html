@@ -459,4 +459,22 @@ table.innerHTML+=`
 
 }
 
+  function loadDashboard(){
+
+db.collection("stats").doc("dashboard").get().then(doc=>{
+
+let d=doc.data()
+
+document.getElementById("totalStudents").innerText=d.totalStudents
+document.getElementById("totalIncome").innerText="₹"+d.totalIncome
+document.getElementById("todayIncome").innerText="₹"+d.todayIncome
+document.getElementById("monthCollection").innerText="₹"+d.monthCollection
+document.getElementById("monthDue").innerText="₹"+d.totalDue
+
+})
+
+}
+
+  loadDashboard()
+  
 </script>
