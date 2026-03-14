@@ -101,10 +101,6 @@ border-radius:10px;
 margin-top:25px;
 }
 
-.paid{color:#16a34a;font-weight:bold;}
-.partial{color:#f59e0b;font-weight:bold;}
-.due{color:#ef4444;font-weight:bold;}
-
 .section{display:none;}
 .active{display:block;}
 
@@ -182,7 +178,6 @@ Total Due
 <input id="search" placeholder="Search by ID or Name" onkeyup="searchStudent()">
 
 <table id="studentTable">
-
 <tr>
 <th>ID</th>
 <th>Name</th>
@@ -191,7 +186,6 @@ Total Due
 <th>Due</th>
 <th>Status</th>
 </tr>
-
 </table>
 
 </div>
@@ -201,20 +195,16 @@ Total Due
 <h2>Payments</h2>
 
 <table id="paymentTable">
-
 <tr>
 <th>Student</th>
 <th>Amount</th>
 <th>Date</th>
 </tr>
-
 </table>
 
 </div>
 
 </div>
-
-<script>
 
 <script>
 
@@ -225,7 +215,6 @@ projectId:"sjjs-school-erp"
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const db=firebase.firestore()
 
 let studentsCache=[]
@@ -248,22 +237,15 @@ s.classList.remove("active")
 
 document.getElementById(sec).classList.add("active")
 
-if(sec=="students"){
-loadStudents()
-}
-
-if(sec=="payments"){
-loadPayments()
-}
+if(sec=="students") loadStudents()
+if(sec=="payments") loadPayments()
 
 }
 
 function getStatus(fee,due){
-
 if(due==0) return "Paid"
 if(due<fee) return "Partial"
 return "Due"
-
 }
 
 function loadStudents(){
@@ -291,9 +273,8 @@ snap.forEach(doc=>{
 
 let s=doc.data()
 
-let fee=s.Monthly_Fee || 0
-let due=s.Balance_Due || 0
-
+let fee=s.Monthly_Fee||0
+let due=s.Balance_Due||0
 let status=getStatus(fee,due)
 
 studentsCache.push({
@@ -314,7 +295,7 @@ table.innerHTML+=`
 <td>${s.Class}</td>
 <td>₹${fee}</td>
 <td>₹${due}</td>
-<td class="${status.toLowerCase()}">${status}</td>
+<td>${status}</td>
 </tr>
 `
 
@@ -366,17 +347,12 @@ income+=p.amount
 
 let d=new Date(p.date)
 
-if(p.date===todayDate){
-today+=p.amount
-}
+if(p.date===todayDate) today+=p.amount
 
 let m=d.getMonth()
-
 months[m]+=p.amount
 
-if(m===currentMonth){
-monthTotal+=p.amount
-}
+if(m===currentMonth) monthTotal+=p.amount
 
 table.innerHTML+=`
 <tr>
@@ -423,7 +399,6 @@ backgroundColor:'#16a34a'
 function searchStudent(){
 
 let val=document.getElementById("search").value.toLowerCase()
-
 let table=document.getElementById("studentTable")
 
 table.innerHTML=`<tr>
@@ -449,17 +424,17 @@ table.innerHTML+=`
 <td>${s.class}</td>
 <td>₹${s.fee}</td>
 <td>₹${s.due}</td>
-<td class="${s.status.toLowerCase()}">${s.status}</td>
+<td>${s.status}</td>
 </tr>
 `
-  
+
 }
 
 })
 
 }
 
-  function loadDashboard(){
+function loadDashboard(){
 
 db.collection("stats").doc("dashboard").get().then(doc=>{
 
@@ -475,6 +450,9 @@ document.getElementById("monthDue").innerText="₹"+d.totalDue
 
 }
 
-  loadDashboard()
-  
+loadDashboard()
+
 </script>
+
+</body>
+</html>
