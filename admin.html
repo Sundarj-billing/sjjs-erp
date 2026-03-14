@@ -295,18 +295,20 @@ table.innerHTML+=`
 <td>${s.Class}</td>
 <td>₹${fee}</td>
 <td>₹${due}</td>
-<td>${status}</td>
+<td class="${status.toLowerCase()}">${status}</td>
 </tr>
 `
 
 if(due>0){
 
-dueTable.innerHTML+=`
+table.innerHTML+=`
 <tr>
 <td>${doc.id}</td>
 <td>${s.Student_Name}</td>
 <td>${s.Class}</td>
+<td>₹${fee}</td>
 <td>₹${due}</td>
+<td class="${status.toLowerCase()}">${status}</td>
 </tr>
 `
 
