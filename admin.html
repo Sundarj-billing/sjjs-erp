@@ -216,6 +216,8 @@ Total Due
 
 <script>
 
+<script>
+
 const firebaseConfig={
 apiKey:"AIzaSyArpgBPwqlP5AImr2h32VLmbtaxLr0Bknc",
 authDomain:"sjjs-school-erp.firebaseapp.com",
@@ -246,6 +248,14 @@ s.classList.remove("active")
 
 document.getElementById(sec).classList.add("active")
 
+if(sec=="students"){
+loadStudents()
+}
+
+if(sec=="payments"){
+loadPayments()
+}
+
 }
 
 function getStatus(fee,due){
@@ -258,7 +268,7 @@ return "Due"
 
 function loadStudents(){
 
-db.collection("students_billing").onSnapshot(snap=>{
+db.collection("students_billing").get().then(snap=>{
 
 studentsCache=[]
 
@@ -331,7 +341,7 @@ document.getElementById("monthDue").innerText="₹"+totalDue
 
 function loadPayments(){
 
-db.collection("payments").onSnapshot(snap=>{
+db.collection("payments").get().then(snap=>{
 
 let table=document.getElementById("paymentTable")
 
@@ -370,7 +380,7 @@ monthTotal+=p.amount
 
 table.innerHTML+=`
 <tr>
-<td>${p.student}</td>
+<td>${p.student_name}</td>
 <td>₹${p.amount}</td>
 <td>${p.date}</td>
 </tr>
@@ -449,10 +459,4 @@ table.innerHTML+=`
 
 }
 
-loadStudents()
-loadPayments()
-
 </script>
-
-</body>
-</html>
