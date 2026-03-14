@@ -424,7 +424,7 @@ table.innerHTML+=`
 <td>${s.class}</td>
 <td>₹${s.fee}</td>
 <td>₹${s.due}</td>
-<td>${s.status}</td>
+<td class="${s.status.toLowerCase()}">${s.status}</td>
 </tr>
 `
 
@@ -436,22 +436,24 @@ table.innerHTML+=`
 
 function loadDashboard(){
 
-db.collection("stats").doc("dashboard").get().then(doc=>{
+db.collection("stats").doc("dashboard").onSnapshot(doc=>{
 
 let d=doc.data()
 
-document.getElementById("totalStudents").innerText=d.totalStudents
-document.getElementById("totalIncome").innerText="₹"+d.totalIncome
-document.getElementById("todayIncome").innerText="₹"+d.todayIncome
-document.getElementById("monthCollection").innerText="₹"+d.monthCollection
-document.getElementById("monthDue").innerText="₹"+d.totalDue
+if(!d) return
+
+document.getElementById("totalStudents").innerText=d.totalStudents || 0
+document.getElementById("totalIncome").innerText="₹"+(d.totalIncome || 0)
+document.getElementById("todayIncome").innerText="₹"+(d.todayIncome || 0)
+document.getElementById("monthCollection").innerText="₹"+(d.monthCollection || 0)
+document.getElementById("monthDue").innerText="₹"+(d.totalDue || 0)
 
 })
 
 }
 
 loadDashboard()
-
+  
 </script>
 
 </body>
