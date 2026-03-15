@@ -154,6 +154,11 @@ Total Due
 <h2 id="monthDue">₹0</h2>
 </div>
 
+<div class="card" style="background:#800000">
+Discount
+<h2 id="totalDiscount">₹0</h2>
+</div> 
+  
 </div>
 
 <canvas id="incomeChart"></canvas>
@@ -434,6 +439,26 @@ table.innerHTML+=`
 
 }
 
+function loadDiscount(){
+
+let totalDiscount = 0
+
+db.collection("students_billing").get().then(snap=>{
+
+snap.forEach(doc=>{
+
+let d = doc.data()
+
+totalDiscount += Number(d.Discount) || 0
+
+})
+
+document.getElementById("totalDiscount").innerText = "₹"+totalDiscount
+
+})
+
+}
+  
 function loadDashboard(){
 
 db.collection("stats").doc("dashboard").onSnapshot(doc=>{
@@ -447,6 +472,22 @@ document.getElementById("totalIncome").innerText="₹"+(d.totalIncome || 0)
 document.getElementById("todayIncome").innerText="₹"+(d.todayIncome || 0)
 document.getElementById("monthCollection").innerText="₹"+(d.monthCollection || 0)
 document.getElementById("monthDue").innerText="₹"+(d.totalDue || 0)
+
+})
+
+db.collection("students_billing").get().then(snap=>{
+
+let totalDiscount=0
+
+snap.forEach(doc=>{
+
+let d=doc.data()
+
+totalDiscount += Number(d.Discount) || 0
+
+})
+
+document.getElementById("totalDiscount").innerText="₹"+totalDiscount
 
 })
 
