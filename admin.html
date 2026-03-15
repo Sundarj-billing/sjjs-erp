@@ -17,13 +17,13 @@
 body{
 font-family:Segoe UI;
 margin:0;
-background:#eef2f7;
+background:#f1f5f9;
 }
 
 .sidebar{
-width:220px;
+width:230px;
 height:100vh;
-background:#111827;
+background:#0f172a;
 color:white;
 position:fixed;
 }
@@ -32,66 +32,84 @@ position:fixed;
 padding:20px;
 font-size:22px;
 text-align:center;
-border-bottom:1px solid #333;
+font-weight:bold;
+border-bottom:1px solid #1e293b;
 }
 
 .sidebar a{
 display:block;
 padding:15px;
 cursor:pointer;
-border-bottom:1px solid #333;
+border-bottom:1px solid #1e293b;
 }
 
 .sidebar a:hover{
-background:#1f2937;
+background:#1e293b;
 }
 
 .main{
-margin-left:220px;
-padding:25px;
-background:linear-gradient(135deg,#eef2ff,#f8fafc);
-min-height:100vh;
+margin-left:230px;
+padding:30px;
 }
 
 .cards{
-display:flex;
-flex-wrap:wrap;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
 gap:20px;
+margin-bottom:25px;
 }
 
 .card{
-flex:1;
-min-width:200px;
+background:white;
 padding:20px;
 border-radius:12px;
-color:white;
-font-weight:bold;
-box-shadow:0 5px 15px rgba(0,0,0,0.15);
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
 }
 
-.blue{background:#2563eb;}
-.green{background:#16a34a;}
-.orange{background:#f97316;}
-.red{background:#ef4444;}
-.purple{background:#7c3aed;}
+.card h3{
+margin:0;
+color:#64748b;
+}
+
+.card h2{
+margin-top:10px;
+}
 
 table{
 width:100%;
 border-collapse:collapse;
-margin-top:20px;
 background:white;
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+margin-top:20px;
 }
 
 th{
 background:#2563eb;
 color:white;
-padding:10px;
+padding:12px;
 }
 
 td{
 padding:10px;
-border-bottom:1px solid #ddd;
+border-bottom:1px solid #e5e7eb;
 text-align:center;
+}
+
+.paid{color:#16a34a;font-weight:bold;}
+.partial{color:#f59e0b;font-weight:bold;}
+.due{color:#ef4444;font-weight:bold;}
+
+.section{display:none;}
+.active{display:block;}
+
+.search{
+padding:10px;
+width:250px;
+border-radius:6px;
+border:1px solid #ddd;
+margin-bottom:15px;
 }
 
 canvas{
@@ -100,9 +118,6 @@ padding:20px;
 border-radius:10px;
 margin-top:25px;
 }
-
-.section{display:none;}
-.active{display:block;}
 
 </style>
 
@@ -129,41 +144,41 @@ margin-top:25px;
 
 <div class="cards">
 
-<div class="card blue">
-Total Students
+<div class="card">
+<h3>Total Students</h3>
 <h2 id="totalStudents">0</h2>
 </div>
 
-<div class="card green">
-Total Income
+<div class="card">
+<h3>Total Income</h3>
 <h2 id="totalIncome">₹0</h2>
 </div>
 
-<div class="card orange">
-Today Payment
+<div class="card">
+<h3>Today Payment</h3>
 <h2 id="todayIncome">₹0</h2>
 </div>
 
-<div class="card red">
-Collection This Month
+<div class="card">
+<h3>Collection This Month</h3>
 <h2 id="monthCollection">₹0</h2>
 </div>
 
-<div class="card purple">
-Total Due
+<div class="card">
+<h3>Total Due</h3>
 <h2 id="monthDue">₹0</h2>
 </div>
 
-<div class="card" style="background:#800000">
-Discount
+<div class="card">
+<h3>Discount</h3>
 <h2 id="totalDiscount">₹0</h2>
-</div> 
+</div>
 
-<div class="card" style="background:#ff1493">
-Net Amount
+<div class="card">
+<h3>Net Amount</h3>
 <h2 id="netAmount">₹0</h2>
 </div>
-  
+
 </div>
 
 <canvas id="incomeChart"></canvas>
@@ -185,7 +200,7 @@ Net Amount
 
 <h2>Students</h2>
 
-<input id="search" placeholder="Search by ID or Name" onkeyup="searchStudent()">
+<input id="search" class="search" placeholder="Search student" onkeyup="searchStudent()">
 
 <table id="studentTable">
 <tr>
@@ -219,15 +234,17 @@ Net Amount
 <script>
 
 const firebaseConfig={
-apiKey:"AIzaSyArpgBPwqlP5AImr2h32VLmbtaxLr0Bknc",
+apiKey:"YOUR_API_KEY",
 authDomain:"sjjs-school-erp.firebaseapp.com",
 projectId:"sjjs-school-erp"
 };
 
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig)
+
 const db=firebase.firestore()
 
 let studentsCache=[]
+let chart
 
 firebase.auth().onAuthStateChanged(user=>{
 if(!user) window.location="login.html"
@@ -252,10 +269,25 @@ if(sec=="payments") loadPayments()
 
 }
 
-function getStatus(fee,due){
-if(due==0) return "Paid"
-if(due<fee) return "Partial"
-return "Due"
+function loadDashboard(){
+
+db.collection("stats").doc("dashboard").get().then(doc=>{
+
+let d=doc.data()
+
+document.getElementById("totalStudents").innerText=d.totalStudents||0
+document.getElementById("totalIncome").innerText="₹"+(d.totalIncome||0)
+document.getElementById("todayIncome").innerText="₹"+(d.todayIncome||0)
+document.getElementById("monthCollection").innerText="₹"+(d.monthCollection||0)
+document.getElementById("monthDue").innerText="₹"+(d.totalDue||0)
+document.getElementById("totalDiscount").innerText="₹"+(d.totalDiscount||0)
+
+let net=(d.totalIncome||0)-(d.totalDiscount||0)
+
+document.getElementById("netAmount").innerText="₹"+net
+
+})
+
 }
 
 function loadStudents(){
@@ -265,19 +297,10 @@ db.collection("students_billing").get().then(snap=>{
 studentsCache=[]
 
 let table=document.getElementById("studentTable")
-let dueTable=document.getElementById("dueTable")
 
 table.innerHTML=`<tr>
 <th>ID</th><th>Name</th><th>Class</th><th>Fee</th><th>Due</th><th>Status</th>
 </tr>`
-
-dueTable.innerHTML=`<tr>
-<th>ID</th><th>Name</th><th>Class</th><th>Due</th>
-</tr>`
-
-let totalDue=0
-
-document.getElementById("totalStudents").innerText=snap.size
 
 snap.forEach(doc=>{
 
@@ -285,7 +308,11 @@ let s=doc.data()
 
 let fee=s.Monthly_Fee||0
 let due=s.Balance_Due||0
-let status=getStatus(fee,due)
+
+let status="Paid"
+if(due==0) status="Paid"
+else if(due<fee) status="Partial"
+else status="Due"
 
 studentsCache.push({
 id:doc.id,
@@ -295,8 +322,6 @@ fee:fee,
 due:due,
 status:status
 })
-
-totalDue+=due
 
 table.innerHTML+=`
 <tr>
@@ -309,27 +334,12 @@ table.innerHTML+=`
 </tr>
 `
 
-if(due>0){
-
-dueTable.innerHTML+=`
-<tr>
-<td>${doc.id}</td>
-<td>${s.Student_Name}</td>
-<td>${s.Class}</td>
-<td>₹${due}</td>
-</tr>
-`
-
-}
-
 })
-
-document.getElementById("monthDue").innerText="₹"+totalDue
 
 })
 
 }
-  
+
 function loadPayments(){
 
 db.collection("payments").get().then(snap=>{
@@ -340,29 +350,15 @@ table.innerHTML=`<tr>
 <th>Student</th><th>Amount</th><th>Date</th>
 </tr>`
 
-let income=0
-let today=0
-let monthTotal=0
-
-let todayDate=new Date().toLocaleDateString()
-let currentMonth=new Date().getMonth()
-
 let months=[0,0,0,0,0,0,0,0,0,0,0,0]
 
 snap.forEach(doc=>{
 
 let p=doc.data()
 
-income+=p.amount
-
 let d=new Date(p.date)
 
-if(p.date===todayDate) today+=p.amount
-
-let m=d.getMonth()
-months[m]+=p.amount
-
-if(m===currentMonth) monthTotal+=p.amount
+months[d.getMonth()]+=p.amount
 
 table.innerHTML+=`
 <tr>
@@ -374,17 +370,11 @@ table.innerHTML+=`
 
 })
 
-document.getElementById("totalIncome").innerText="₹"+income
-document.getElementById("todayIncome").innerText="₹"+today
-document.getElementById("monthCollection").innerText="₹"+monthTotal
-
 updateChart(months)
 
 })
 
 }
-
-let chart
 
 function updateChart(months){
 
@@ -393,13 +383,13 @@ let ctx=document.getElementById("incomeChart")
 if(chart) chart.destroy()
 
 chart=new Chart(ctx,{
-type:'bar',
+type:"bar",
 data:{
-labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+labels:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
 datasets:[{
-label:'Monthly Income',
+label:"Monthly Collection",
 data:months,
-backgroundColor:'#16a34a'
+backgroundColor:"#22c55e"
 }]
 }
 })
@@ -409,6 +399,7 @@ backgroundColor:'#16a34a'
 function searchStudent(){
 
 let val=document.getElementById("search").value.toLowerCase()
+
 let table=document.getElementById("studentTable")
 
 table.innerHTML=`<tr>
@@ -422,10 +413,7 @@ table.innerHTML=`<tr>
 
 studentsCache.forEach(s=>{
 
-if(
-s.id.toLowerCase().includes(val) ||
-s.name.toLowerCase().includes(val)
-){
+if(s.id.toLowerCase().includes(val)||s.name.toLowerCase().includes(val)){
 
 table.innerHTML+=`
 <tr>
@@ -444,53 +432,8 @@ table.innerHTML+=`
 
 }
 
-function loadDiscount(){
-
-let totalDiscount = 0
-
-db.collection("students_billing").get().then(snap=>{
-
-snap.forEach(doc=>{
-
-let d = doc.data()
-
-totalDiscount += Number(d.Discount) || 0
-
-})
-
-document.getElementById("totalDiscount").innerText = "₹"+totalDiscount
-
-})
-
-}
-  
-function loadDashboard(){
-
-db.collection("stats").doc("dashboard").onSnapshot(doc=>{
-
-let d=doc.data()
-
-if(!d) return
-
-document.getElementById("totalStudents").innerText=d.totalStudents || 0
-document.getElementById("totalIncome").innerText="₹"+(d.totalIncome || 0)
-document.getElementById("todayIncome").innerText="₹"+(d.todayIncome || 0)
-document.getElementById("monthCollection").innerText="₹"+(d.monthCollection || 0)
-document.getElementById("monthDue").innerText="₹"+(d.totalDue || 0)
-document.getElementById("totalDiscount").innerText="₹"+(d.totalDiscount || 0)
-  
-let income = d.totalIncome || 0
-let discount = d.totalDiscount || 0
-
-let net = income - discount
-
-document.getElementById("netAmount").innerText = "₹"+net
-})
-
-}
-
 loadDashboard()
-  
+
 </script>
 
 </body>
