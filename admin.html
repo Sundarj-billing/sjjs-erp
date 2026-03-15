@@ -246,10 +246,22 @@ const db=firebase.firestore()
 let studentsCache=[]
 let chart
 
-firebase.auth().onAuthStateChanged(user=>{
-if(!user) window.location="login.html"
-})
+firebase.auth().onAuthStateChanged(function(user){
 
+if(user){
+
+console.log("Admin logged in:",user.email)
+
+}else{
+
+setTimeout(()=>{
+window.location="login.html"
+},1500)
+
+}
+
+})
+  
 function logout(){
 firebase.auth().signOut().then(()=>{
 window.location="login.html"
