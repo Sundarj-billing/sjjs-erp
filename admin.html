@@ -158,6 +158,11 @@ Total Due
 Discount
 <h2 id="totalDiscount">₹0</h2>
 </div> 
+
+<div class="card pink">
+Net Amount
+<h2 id="netAmount">₹0</h2>
+</div>
   
 </div>
 
@@ -488,6 +493,12 @@ totalDiscount += Number(d.Discount) || 0
 })
 
 document.getElementById("totalDiscount").innerText="₹"+totalDiscount
+  
+let income = Number(document.getElementById("totalIncome").innerText.replace("₹","")) || 0
+
+let net = income - totalDiscount
+
+document.getElementById("netAmount").innerText = "₹"+net
 
 })
 
