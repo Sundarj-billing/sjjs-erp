@@ -271,6 +271,8 @@ firebase.initializeApp(firebaseConfig)
 
 const db=firebase.firestore()
 
+db.enablePersistence()
+
 let studentsCache=[]
 let chart
 
@@ -332,7 +334,7 @@ loadDueStudents()
 
 function loadStudents(){
 
-db.collection("students_billing").get().then(snap=>{
+db.collection("students_billing").limit(50).get().then(snap=>{
 
 studentsCache=[]
 
@@ -380,45 +382,35 @@ table.innerHTML+=`
 
 }
 
-  function loadPayments(){
+function loadPayments(){
 
-let start=new Date()
-start.setDate(1)
+db.collection("stats").doc("payments_list").get().then(doc=>{
 
-db.collection("payments")
-.where("timestamp",">=",start)
-.get()
-.then(snap=>{
+let data = doc.data()
 
 let table=document.getElementById("paymentTable")
 
-table.innerHTML=`<tr>
+table.innerHTML=`
+<tr>
 <th>Student</th>
 <th>Amount</th>
 <th>Date</th>
-</tr>`
+</tr>
+`
 
-let months=[0,0,0,0,0,0,0,0,0,0,0,0]
+if(!data || !data.list) return
 
-snap.forEach(doc=>{
-
-let p=doc.data()
-
-let d=new Date(p.timestamp)
-
-months[d.getMonth()]+=p.amount
+data.list.forEach(p=>{
 
 table.innerHTML+=`
 <tr>
-<td>${p.student_name}</td>
+<td>${p.student}</td>
 <td>₹${p.amount}</td>
 <td>${p.date}</td>
 </tr>
 `
 
 })
-
-updateChart(months)
 
 })
 
