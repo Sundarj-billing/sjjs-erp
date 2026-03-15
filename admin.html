@@ -159,7 +159,7 @@ Discount
 <h2 id="totalDiscount">₹0</h2>
 </div> 
 
-<div class="card pink">
+<div class="card" style="background:#ff1493">
 Net Amount
 <h2 id="netAmount">₹0</h2>
 </div>
@@ -477,29 +477,14 @@ document.getElementById("totalIncome").innerText="₹"+(d.totalIncome || 0)
 document.getElementById("todayIncome").innerText="₹"+(d.todayIncome || 0)
 document.getElementById("monthCollection").innerText="₹"+(d.monthCollection || 0)
 document.getElementById("monthDue").innerText="₹"+(d.totalDue || 0)
-
-})
-
-db.collection("students_billing").get().then(snap=>{
-
-let totalDiscount=0
-
-snap.forEach(doc=>{
-
-let d=doc.data()
-
-totalDiscount += Number(d.Discount) || 0
-
-})
-
-document.getElementById("totalDiscount").innerText="₹"+totalDiscount
+document.getElementById("totalDiscount").innerText="₹"+(d.totalDiscount || 0)
   
-let income = Number(document.getElementById("totalIncome").innerText.replace("₹","")) || 0
+let income = d.totalIncome || 0
+let discount = d.totalDiscount || 0
 
-let net = income - totalDiscount
+let net = income - discount
 
 document.getElementById("netAmount").innerText = "₹"+net
-
 })
 
 }
