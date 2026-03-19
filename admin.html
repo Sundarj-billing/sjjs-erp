@@ -146,13 +146,40 @@ border-left:6px solid #ec4899;
 .maroon{
 border-left:6px solid #800000;
 }
+@media(max-width:768px){
 
+.sidebar{
+left:-230px;
+transition:0.3s;
+}
+
+.sidebar.active{
+left:0;
+}
+
+.main{
+margin-left:0;
+}
+
+.menuBtn{
+position:fixed;
+top:10px;
+left:10px;
+background:#0f172a;
+color:white;
+padding:10px;
+cursor:pointer;
+z-index:1000;
+border-radius:5px;
+}
+
+}
 </style>
 
 </head>
 
 <body>
-
+<div class="menuBtn" onclick="toggleMenu()">☰</div>
 <div class="sidebar">
 
 <div class="logo">
@@ -370,7 +397,7 @@ status:status
 
 table.innerHTML+=`
 <tr>
-<td>${doc.id}</td>
+<td>${doc.id || "-"}</td>
 <td>${s.Student_Name}</td>
 <td>${s.Class}</td>
 <td>₹${fee}</td>
@@ -432,7 +459,15 @@ labels:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 datasets:[{
 label:"Monthly Collection",
 data:months,
-backgroundColor:"#22c55e"
+backgroundColor:[
+"#3b82f6",
+"#22c55e",
+"#f59e0b",
+"#ef4444",
+"#7c3aed",
+"#ec4899"
+],
+borderRadius:8
 }]
 }
 })
@@ -498,10 +533,10 @@ data.list.forEach(s=>{
 
 table.innerHTML+=`
 <tr>
-<td>${s.id}</td>
-<td>${s.name}</td>
-<td>${s.class}</td>
-<td>₹${s.due}</td>
+<td>${s.id || s.studentId || "N/A"}</td>
+<td>${s.name || "-"}</td>
+<td>${s.class || "-"}</td>
+<td>₹${s.due || 0}</td>
 </tr>
 `
 
