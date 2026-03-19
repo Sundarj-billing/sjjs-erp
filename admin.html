@@ -423,22 +423,22 @@ let table=document.getElementById("paymentTable")
 
 table.innerHTML=`
 <tr>
-<td>${p.id || "-"}</td>
-<td>${p.student}</td>
-<td>₹${p.amount}</td>
-<td>${new Date(p.date).toLocaleString()}</td>
+<th>ID</th>
+<th>Student</th>
+<th>Amount</th>
+<th>Date</th>
 </tr>
 `
-
 if(!data || !data.list) return
 
 data.list.forEach(p=>{
 
 table.innerHTML+=`
 <tr>
+<td>${p.id || "-"}</td>
 <td>${p.student}</td>
 <td>₹${p.amount}</td>
-<td>${p.date}</td>
+<td>${p.date ? new Date(p.date).toLocaleString() : "-"}</td>
 </tr>
 `
 
