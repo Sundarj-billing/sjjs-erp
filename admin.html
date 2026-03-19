@@ -435,9 +435,9 @@ data.list.forEach(p=>{
 
 table.innerHTML+=`
 <tr>
-<td>${p.id || "-"}</td>
-<td>${p.student}</td>
-<td>₹${p.amount}</td>
+<td>${p.Student_ID || "-"}</td>
+<td>${p.name || "-"}</td>
+<td>₹${p.amount || 0}</td>
 <td>${p.date ? new Date(p.date).toLocaleString() : "-"}</td>
 </tr>
 `
