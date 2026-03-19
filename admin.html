@@ -279,6 +279,7 @@ SJJ School
 
 <table id="paymentTable">
 <tr>
+<th>ID</th>
 <th>Student</th>
 <th>Amount</th>
 <th>Date</th>
@@ -422,9 +423,10 @@ let table=document.getElementById("paymentTable")
 
 table.innerHTML=`
 <tr>
-<th>Student</th>
-<th>Amount</th>
-<th>Date</th>
+<td>${p.id || "-"}</td>
+<td>${p.student}</td>
+<td>₹${p.amount}</td>
+<td>${new Date(p.date).toLocaleString()}</td>
 </tr>
 `
 
