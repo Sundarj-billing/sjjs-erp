@@ -123,10 +123,13 @@ let data=doc.data()
 
 if(data.Password === pass){
 
-alert("✅ Login Success")
+localStorage.setItem("studentID", id)
 
-window.location="parent-dashboard.html?id="+id
+  alert("✅ Login Success")
 
+window.location="parent-dashboard.html"
+}
+ 
 }else{
 alert("❌ Wrong Password")
 }
