@@ -5,7 +5,8 @@
 <title>Sundar J.J School - Parents Portal</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <style>
 
 body{
@@ -127,35 +128,67 @@ margin-top:10px;
 
 <script>
 
-// 🔴 Firebase later connect হবে (structure ready)
+// 🔴 তোমার Firebase config বসাও
+const firebaseConfig = {
+  apiKey: "AIzaSyArpgBPwqlP5AImr2h32VLmbtaxLr0Bknc",
+  authDomain: "sjjs-school-erp.firebaseapp.com",
+  projectId: "sjjs-school-erp",
+};
 
+firebase.initializeApp(firebaseConfig);
+
+// 🔐 Recaptcha setup
+window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha', {
+  size: 'invisible'
+});
+
+// 📲 Send OTP
 function sendOTP(){
+
 let phone=document.getElementById("phone").value
 
-if(phone.length<10){
-alert("Enter valid phone number")
+if(!phone.startsWith("+") || phone.length < 12){
+alert("Use format: +91XXXXXXXXXX")
 return
 }
 
-// UI change only (demo)
+firebase.auth().signInWithPhoneNumber(phone, window.recaptchaVerifier)
+.then(function(confirmationResult){
+
+window.confirmationResult = confirmationResult
+
+// UI change
 document.getElementById("step1").classList.add("hidden")
 document.getElementById("step2").classList.remove("hidden")
 
-alert("OTP sent (demo)")
+alert("OTP Sent")
+
+})
+.catch(function(error){
+alert("Error: "+error.message)
+})
+
 }
 
+// ✅ Verify OTP
 function verifyOTP(){
+
 let otp=document.getElementById("otp").value
 
-if(otp.length<4){
-alert("Enter valid OTP")
-return
-}
+window.confirmationResult.confirm(otp)
+.then(function(){
 
-// demo redirect
-window.location="dashboard.html"
-}
+alert("Login Success")
 
+// 👉 Dashboard এ redirect
+window.location="parent-dashboard.html"
+
+})
+.catch(function(error){
+alert("Error: " + error.message)
+})
+
+}
 </script>
 
 </body>
