@@ -2,18 +2,21 @@
 <html>
 <head>
 
-<title>Sundar J.J School - Dashboard</title>
+<title>Sundar J.J School - Parent Dashboard</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+<!-- ✅ Firebase (FIXED VERSION) -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <style>
+
 body{
-font-family:Arial;
+font-family:'Segoe UI', Arial;
 background: linear-gradient(135deg,#3b82f6,#93c5fd);
 padding:20px;
+margin:0;
 text-align:center;
 }
 
@@ -23,25 +26,73 @@ padding:25px;
 border-radius:15px;
 width:350px;
 margin:auto;
+box-shadow:0 10px 30px rgba(0,0,0,0.2);
+animation:fadeIn 1s ease;
 }
 
-input,button{
+@keyframes fadeIn{
+from{opacity:0; transform:translateY(20px);}
+to{opacity:1; transform:translateY(0);}
+}
+
+.title{
+color:#1e3a8a;
+margin-bottom:5px;
+}
+
+.subtitle{
+color:#555;
+margin-bottom:20px;
+font-size:14px;
+}
+
+input{
 padding:12px;
-margin:10px;
+margin:10px 0;
 width:90%;
-border-radius:8px;
+border:1px solid #ccc;
+border-radius:10px;
+outline:none;
+}
+
+input:focus{
+border-color:#3b82f6;
+box-shadow:0 0 5px rgba(59,130,246,0.5);
 }
 
 button{
-background:#2563eb;
-color:white;
+padding:12px;
+width:95%;
+background: linear-gradient(135deg,#2563eb,#1d4ed8);
 border:none;
+color:white;
+cursor:pointer;
+border-radius:10px;
+font-weight:bold;
+transition:0.3s;
+}
+
+button:hover{
+transform:scale(1.03);
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
 }
 
 .result{
 margin-top:20px;
 text-align:left;
+background:#f1f5f9;
+padding:15px;
+border-radius:10px;
 }
+
+.card{
+background:white;
+padding:10px;
+margin-bottom:10px;
+border-radius:8px;
+box-shadow:0 3px 10px rgba(0,0,0,0.1);
+}
+
 </style>
 
 </head>
@@ -50,12 +101,12 @@ text-align:left;
 
 <div class="box">
 
-<h2>Sundar J.J School</h2>
-<p>Parent Dashboard</p>
+<h2 class="title">Sundar J.J School</h2>
+<p class="subtitle">Parent Dashboard</p>
 
 <input id="studentID" placeholder="Enter Student ID">
 
-<button onclick="searchStudent()">Search</button>
+<button onclick="searchStudent()">Search Student</button>
 
 <div id="result" class="result"></div>
 
@@ -63,9 +114,9 @@ text-align:left;
 
 <script>
 
-
+// 🔴 Firebase Config
 const firebaseConfig = {
- apiKey: "AIzaSyArpgBPwqlP5AImr2h32VLmbtaxLr0Bknc",
+  apiKey: "AIzaSyArpgBPwqlP5AImr2h32VLmbtaxLr0Bknc",
   authDomain: "sjjs-school-erp.firebaseapp.com",
   projectId: "sjjs-school-erp",
 };
@@ -73,12 +124,13 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// 🔍 Search Function
 async function searchStudent(){
 
-let id=document.getElementById("studentID").value
+let id = document.getElementById("studentID").value.toUpperCase().trim()
 
 if(!id){
-alert("Enter Student ID")
+alert("Please enter Student ID")
 return
 }
 
@@ -92,10 +144,10 @@ let data = doc.data()
 
 document.getElementById("result").innerHTML=`
 
-<p><b>Name:</b> ${data.Student_Name}</p>
-<p><b>Class:</b> ${data.Class}</p>
-<p><b>Monthly Fee:</b> ₹${data.Monthly_Fee}</p>
-<p><b>Due Amount:</b> ₹${data.Balance_Due}</p>
+<div class="card"><b>Name:</b> ${data.Student_Name}</div>
+<div class="card"><b>Class:</b> ${data.Class}</div>
+<div class="card"><b>Monthly Fee:</b> ₹${data.Monthly_Fee}</div>
+<div class="card"><b>Due Amount:</b> ₹${data.Balance_Due}</div>
 
 <button onclick="payNow(${data.Balance_Due})">Pay Now</button>
 
@@ -108,15 +160,19 @@ document.getElementById("result").innerHTML="❌ Student not found"
 }
 
 }catch(err){
-alert("Error fetching data")
+alert("Error fetching data: " + err.message)
 }
 
 }
 
+// 💰 Payment Calculation
 function payNow(amount){
-let charge=amount*0.02
-let total=amount+charge
-alert("Total Payment: ₹"+total)
+
+let charge = amount * 0.02
+let total = amount + charge
+
+alert("Total Payment (with 2% charge): ₹" + total)
+
 }
 
 </script>
