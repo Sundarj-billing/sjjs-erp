@@ -2,16 +2,18 @@
 <html>
 <head>
 
-<title>Sundar J.J School - Parents Portal</title>
+<title>Sundar J.J School - Login</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
 <style>
 
 body{
-font-family: 'Segoe UI', Arial;
-background: linear-gradient(135deg, #3b82f6, #93c5fd);
+font-family:'Segoe UI', Arial;
+background: linear-gradient(135deg,#3b82f6,#93c5fd);
 display:flex;
 justify-content:center;
 align-items:center;
@@ -21,76 +23,54 @@ margin:0;
 
 .box{
 background:white;
-padding:35px;
-border-radius:20px;
-box-shadow:0 15px 40px rgba(0,0,0,0.2);
-text-align:center;
+padding:30px;
+border-radius:15px;
 width:320px;
-animation:fadeIn 1s ease;
-}
-
-@keyframes fadeIn{
-from{opacity:0; transform:translateY(30px);}
-to{opacity:1; transform:translateY(0);}
-}
-
-.logo{
-width:80px;
-margin-bottom:10px;
+text-align:center;
+box-shadow:0 10px 30px rgba(0,0,0,0.2);
 }
 
 .title{
 color:#1e3a8a;
-margin-bottom:5px;
-font-size:22px;
 }
 
-.subtitle{
-color:#555;
-margin-bottom:20px;
-font-size:14px;
+.input-group{
+position:relative;
 }
 
 input{
 padding:12px;
 margin:10px 0;
 width:100%;
+border-radius:8px;
 border:1px solid #ccc;
-border-radius:10px;
-outline:none;
-font-size:14px;
-transition:0.3s;
 }
 
-input:focus{
-border-color:#3b82f6;
-box-shadow:0 0 8px rgba(59,130,246,0.4);
+.eye{
+position:absolute;
+right:10px;
+top:50%;
+transform:translateY(-50%);
+cursor:pointer;
+font-size:14px;
+color:#2563eb;
 }
 
 button{
 padding:12px;
 width:100%;
-background: linear-gradient(135deg, #2563eb, #1d4ed8);
-border:none;
+background:#2563eb;
 color:white;
+border:none;
+border-radius:8px;
 cursor:pointer;
-border-radius:10px;
-font-size:15px;
-font-weight:bold;
-transition:0.3s;
 }
 
-button:hover{
-transform:scale(1.03);
-box-shadow:0 5px 15px rgba(0,0,0,0.2);
-}
-
-.hidden{
-display:none;
-}
-
-#recaptcha{
+.link{
 margin-top:10px;
+color:#2563eb;
+cursor:pointer;
+font-size:13px;
 }
 
 </style>
@@ -101,34 +81,24 @@ margin-top:10px;
 
 <div class="box">
 
-<img src="logo.png" class="logo">
-
 <h2 class="title">Sundar J.J School</h2>
-<p class="subtitle">Parents Portal</p>
+<p>Parent Login</p>
 
-<div id="step1">
+<input id="userid" placeholder="Enter Student ID">
 
-<input id="phone" placeholder="+91XXXXXXXXXX">
-
-<div id="recaptcha"></div>
-
-<button onclick="sendOTP()">Send OTP</button>
-
+<div class="input-group">
+<input id="password" type="password" placeholder="Enter Password">
+<span class="eye" onclick="togglePassword()">👁</span>
 </div>
 
-<div id="step2" class="hidden">
+<button onclick="login()">Login</button>
 
-<input id="otp" placeholder="Enter OTP">
-
-<button onclick="verifyOTP()">Verify OTP</button>
-
-</div>
+<div class="link" onclick="forgotPassword()">Forgot Password?</div>
 
 </div>
 
 <script>
 
-// 🔴 তোমার Firebase config বসাও
 const firebaseConfig = {
   apiKey: "AIzaSyArpgBPwqlP5AImr2h32VLmbtaxLr0Bknc",
   authDomain: "sjjs-school-erp.firebaseapp.com",
@@ -136,59 +106,74 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-// 🔐 Recaptcha setup
-window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha', {
-  size: 'invisible'
-});
+// 👁 Show/Hide Password
+function togglePassword(){
+let pass = document.getElementById("password")
 
-// 📲 Send OTP
-function sendOTP(){
+if(pass.type === "password"){
+pass.type = "text"
+}else{
+pass.type = "password"
+}
+}
 
-let phone=document.getElementById("phone").value
+// 🔐 Login
+async function login(){
 
-if(!phone.startsWith("+") || phone.length < 12){
-alert("Use format: +91XXXXXXXXXX")
+let id = document.getElementById("userid").value.toUpperCase().trim()
+let pass = document.getElementById("password").value
+
+if(!id || !pass){
+alert("Enter all fields")
 return
 }
 
-firebase.auth().signInWithPhoneNumber(phone, window.recaptchaVerifier)
-.then(function(confirmationResult){
+let doc = await db.collection("students_billing").doc(id).get()
 
-window.confirmationResult = confirmationResult
+if(doc.exists){
 
-// UI change
-document.getElementById("step1").classList.add("hidden")
-document.getElementById("step2").classList.remove("hidden")
+let data = doc.data()
 
-alert("OTP Sent")
+if(data.Password == pass){
 
-})
-.catch(function(error){
-alert("Error: "+error.message)
-})
-
-}
-
-// ✅ Verify OTP
-function verifyOTP(){
-
-let otp=document.getElementById("otp").value
-
-window.confirmationResult.confirm(otp)
-.then(function(){
+localStorage.setItem("studentID", id)
 
 alert("Login Success")
-
-// 👉 Dashboard এ redirect
 window.location="parent-dashboard.html"
 
-})
-.catch(function(error){
-alert("Error: " + error.message)
-})
+}else{
+alert("Wrong Password")
+}
+
+}else{
+alert("User not found")
+}
 
 }
+
+// 🔁 Forgot Password
+async function forgotPassword(){
+
+let id = prompt("Enter your Student ID")
+
+if(!id) return
+
+let doc = await db.collection("students_billing").doc(id.toUpperCase()).get()
+
+if(doc.exists){
+
+let data = doc.data()
+
+alert("Your Password: " + data.Password)
+
+}else{
+alert("Student not found")
+}
+
+}
+
 </script>
 
 </body>
