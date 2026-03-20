@@ -112,6 +112,8 @@ alert("Enter all fields")
 return
 }
 
+try{
+
 let doc=await db.collection("students_billing").doc(id).get()
 
 if(!doc.exists){
@@ -125,13 +127,16 @@ if(data.Password === pass){
 
 localStorage.setItem("studentID", id)
 
-  alert("✅ Login Success")
+alert("✅ Login Success")
 
 window.location="parent-dashboard.html"
-}
- 
+
 }else{
 alert("❌ Wrong Password")
+}
+
+}catch(e){
+alert("Error: " + e.message)
 }
 
 }
