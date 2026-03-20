@@ -190,6 +190,7 @@ SJJ School
 <a onclick="show('dashboard')">Dashboard</a>
 <a onclick="show('students')">Students</a>
 <a onclick="show('payments')">Payments</a>
+<a onclick="show('addStudent')">Add Student</a>
 <a onclick="logout()">Logout</a>
 
 </div>
@@ -287,7 +288,19 @@ SJJ School
 </table>
 
 </div>
+<div id="addStudent" class="section">
 
+<h2>Add Student</h2>
+
+<input id="id" placeholder="Student ID">
+<input id="name" placeholder="Name">
+<input id="class" placeholder="Class">
+<input id="fee" placeholder="Monthly Fee">
+<input id="due" placeholder="Due Amount">
+
+<button onclick="addStudent()">Add Student</button>
+
+</div>
 </div>
 
 <script>
@@ -302,7 +315,7 @@ firebase.initializeApp(firebaseConfig)
 
 const db=firebase.firestore()
 
-db.enablePersistence()
+db.enablePersistence().catch(()=>{})
 
 let studentsCache=[]
 let chart
@@ -365,7 +378,7 @@ loadDueStudents()
 
 function loadStudents(){
 
-db.collection("students_billing").limit(50).get().then(snap=>{
+db.collection("students_billing").limit(20).get().then(snap=>{
 
 studentsCache=[]
 
@@ -547,7 +560,54 @@ table.innerHTML+=`
 })
 
 }
+function generatePassword(studentID){
+return studentID.replace("-", "@")
+}
+ async function addStudent(){
 
+let id = document.getElementById("id").value.toUpperCase().trim()
+let name = document.getElementById("name").value
+let cls = document.getElementById("class").value
+let fee = document.getElementById("fee").value
+let due = document.getElementById("due").value
+
+if(!id || !name){
+alert("Fill all fields")
+return
+}
+
+let ref = db.collection("students_billing").doc(id)
+let doc = await ref.get()
+
+if(doc.exists){
+alert("❌ Student already exists")
+return
+}
+
+// 🔐 Auto password
+let password = generatePassword(id)
+
+await ref.set({
+Student_Name: name,
+Class: cls,
+Monthly_Fee: Number(fee),
+Balance_Due: Number(due),
+Password: password
+})
+
+alert("Student Added ✅\nPassword: " + password)
+
+// clear input
+document.getElementById("id").value=""
+document.getElementById("name").value=""
+document.getElementById("class").value=""
+document.getElementById("fee").value=""
+document.getElementById("due").value=""
+
+}
+  function toggleMenu(){
+document.querySelector(".sidebar").classList.toggle("active")
+}
 loadDashboard()
 
 </script>
