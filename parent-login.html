@@ -4,48 +4,94 @@
 
 <title>Sundar J.J School - Parents Portal</title>
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 
 body{
-font-family:Arial;
-background:#dbeafe;
+font-family: 'Segoe UI', Arial;
+background: linear-gradient(135deg, #3b82f6, #93c5fd);
 display:flex;
 justify-content:center;
 align-items:center;
 height:100vh;
+margin:0;
 }
 
 .box{
 background:white;
-padding:30px;
-border-radius:10px;
-box-shadow:0 5px 20px rgba(0,0,0,0.2);
+padding:35px;
+border-radius:20px;
+box-shadow:0 15px 40px rgba(0,0,0,0.2);
 text-align:center;
-border-top:5px solid #2563eb;
+width:320px;
+animation:fadeIn 1s ease;
+}
+
+@keyframes fadeIn{
+from{opacity:0; transform:translateY(30px);}
+to{opacity:1; transform:translateY(0);}
+}
+
+.logo{
+width:80px;
+margin-bottom:10px;
+}
+
+.title{
+color:#1e3a8a;
+margin-bottom:5px;
+font-size:22px;
+}
+
+.subtitle{
+color:#555;
+margin-bottom:20px;
+font-size:14px;
 }
 
 input{
-padding:10px;
-margin:10px;
-width:220px;
+padding:12px;
+margin:10px 0;
+width:100%;
+border:1px solid #ccc;
+border-radius:10px;
+outline:none;
+font-size:14px;
+transition:0.3s;
+}
+
+input:focus{
+border-color:#3b82f6;
+box-shadow:0 0 8px rgba(59,130,246,0.4);
 }
 
 button{
-padding:10px 20px;
-background:#2563eb;
+padding:12px;
+width:100%;
+background: linear-gradient(135deg, #2563eb, #1d4ed8);
 border:none;
 color:white;
 cursor:pointer;
+border-radius:10px;
+font-size:15px;
+font-weight:bold;
+transition:0.3s;
 }
-.title{
-color:#1d4ed8;
-margin-bottom:5px;
+
+button:hover{
+transform:scale(1.03);
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
 }
-  .subtitle{
-color:#555;
-margin-top:0;
-margin-bottom:20px;
+
+.hidden{
+display:none;
 }
+
+#recaptcha{
+margin-top:10px;
+}
+
 </style>
 
 </head>
@@ -53,27 +99,27 @@ margin-bottom:20px;
 <body>
 
 <div class="box">
-<img src="logo.png" width="80">
+
+<img src="logo.png" class="logo">
+
 <h2 class="title">Sundar J.J School</h2>
 <p class="subtitle">Parents Portal</p>
 
 <div id="step1">
 
-<input id="phone" placeholder="Enter Phone Number">
+<input id="phone" placeholder="+91XXXXXXXXXX">
 
-<br>
+<div id="recaptcha"></div>
 
 <button onclick="sendOTP()">Send OTP</button>
 
 </div>
 
-<div id="step2" style="display:none">
+<div id="step2" class="hidden">
 
 <input id="otp" placeholder="Enter OTP">
 
-<br>
-
-<button onclick="verifyOTP()">Verify</button>
+<button onclick="verifyOTP()">Verify OTP</button>
 
 </div>
 
@@ -81,10 +127,9 @@ margin-bottom:20px;
 
 <script>
 
-let generatedOTP=""
+// 🔴 Firebase later connect হবে (structure ready)
 
 function sendOTP(){
-
 let phone=document.getElementById("phone").value
 
 if(phone.length<10){
@@ -92,29 +137,23 @@ alert("Enter valid phone number")
 return
 }
 
-generatedOTP=Math.floor(1000+Math.random()*9000)
+// UI change only (demo)
+document.getElementById("step1").classList.add("hidden")
+document.getElementById("step2").classList.remove("hidden")
 
-alert("Demo OTP : "+generatedOTP)
-
-document.getElementById("step1").style.display="none"
-document.getElementById("step2").style.display="block"
-
+alert("OTP sent (demo)")
 }
 
 function verifyOTP(){
-
 let otp=document.getElementById("otp").value
 
-if(otp==generatedOTP){
-
-window.location="parent-dashboard.html"
-
-}else{
-
-alert("Wrong OTP")
-
+if(otp.length<4){
+alert("Enter valid OTP")
+return
 }
 
+// demo redirect
+window.location="dashboard.html"
 }
 
 </script>
