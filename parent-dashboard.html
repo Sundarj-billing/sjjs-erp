@@ -124,45 +124,39 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// 🔍 Search Function
-async function searchStudent(){
-
-let id = document.getElementById("studentID").value.toUpperCase().trim()
+let id = localStorage.getItem("studentID")
 
 if(!id){
-alert("Please enter Student ID")
-return
+alert("Login first")
+window.location="parent-login.html"
 }
 
-try{
-
-let doc = await db.collection("students_billing").doc(id).get()
+// direct load
+db.collection("students_billing").doc(id).get()
+.then(doc => {
 
 if(doc.exists){
 
 let data = doc.data()
 
-document.getElementById("result").innerHTML=`
-
-<div class="card"><b>Name:</b> ${data.Student_Name}</div>
-<div class="card"><b>Class:</b> ${data.Class}</div>
-<div class="card"><b>Monthly Fee:</b> ₹${data.Monthly_Fee}</div>
-<div class="card"><b>Due Amount:</b> ₹${data.Balance_Due}</div>
+document.getElementById("result").innerHTML = `
+<p><b>Name:</b> ${data.Student_Name}</p>
+<p><b>Class:</b> ${data.Class}</p>
+<p><b>Monthly Fee:</b> ₹${data.Monthly_Fee}</p>
+<p><b>Due Amount:</b> ₹${data.Balance_Due}</p>
 
 <button onclick="payNow(${data.Balance_Due})">Pay Now</button>
-<button onclick="logout()" style="
-background:#ef4444;
-margin-top:10px;
-">
+
+<button onclick="logout()" style="background:#ef4444;margin-top:10px;">
 Logout
 </button>
 `
 
 }else{
-
-document.getElementById("result").innerHTML="❌ Student not found"
-
+alert("No data found")
 }
+
+})
 
 }catch(err){
 alert("Error fetching data: " + err.message)
@@ -183,7 +177,7 @@ function logout(){
 
 localStorage.removeItem("studentID")
 
-window.location = "parent-login.html"
+window.location="parent-login.html"
 
 }
 </script>
