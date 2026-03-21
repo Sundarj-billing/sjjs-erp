@@ -132,13 +132,13 @@ pass.type = pass.type === "password" ? "text" : "password";
 
 // 🔐 HASH FUNCTION (FINAL)
 async function hashPassword(password){
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const msgBuffer = new TextEncoder().encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-}
 
+  return hashArray.map(b => ('0' + b.toString(16)).slice(-2)).join('');
+}
+  
 // 🔥 LOGIN FUNCTION (FINAL FIXED)
 async function login(){
 
