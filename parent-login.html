@@ -186,8 +186,9 @@ return
 
 let data=doc.data()
 
-if(data.Password === pass){
+const hashedInput = await hashPassword(pass);
 
+if(data.Password === hashedInput){
 localStorage.setItem("studentID", id)
 
 alert("Login Success")
@@ -222,7 +223,7 @@ return
 
 let data=doc.data()
 
-alert("Your Password: " + data.Password)
+alert("Contact school for password reset")
 
 }
 
@@ -231,6 +232,13 @@ alert("Your Password: " + data.Password)
 if("serviceWorker" in navigator){
 navigator.serviceWorker.register("sw.js")
 .then(()=>console.log("Service Worker Ready"))
+}
+  async function hashPassword(password){
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 }
 </script>
 </body>
