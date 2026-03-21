@@ -3,7 +3,6 @@
 <head>
 
 <title>Parent Login</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -12,7 +11,7 @@
 <style>
 
 body{
-font-family:Arial;
+font-family:'Segoe UI', Arial;
 background: linear-gradient(135deg,#3b82f6,#93c5fd);
 display:flex;
 justify-content:center;
@@ -24,41 +23,88 @@ margin:0;
 .box{
 background:white;
 padding:30px;
-border-radius:15px;
+border-radius:20px;
 width:320px;
 text-align:center;
+box-shadow:0 15px 40px rgba(0,0,0,0.2);
 }
 
-input{
-padding:10px;
-margin:10px 0;
-width:calc(100% - 10px);
-border-radius:8px;
-outline:none;
-border:1px solid #2563eb;
-box-shadow:0 0 5px rgba(37,99,235,0.3);
-padding-right:35px;
-box-sizing:border-box; /* 🔥 important */
+.logo{
+width:60px;
+margin-bottom:10px;
 }
 
-button{
-padding:12px;
+h2{
+margin-bottom:20px;
+color:#1e3a8a;
+}
+
+/* INPUT BOX */
+.input-box{
+position:relative;
+margin:12px 0;
+}
+
+.input-box input{
 width:100%;
-background:#2563eb;
-color:white;
-border:none;
-border-radius:8px;
-cursor:pointer;
+padding:12px;
+padding-right:40px;
+border-radius:10px;
+border:1px solid #ccc;
+box-sizing:border-box;
+font-size:14px;
+transition:0.3s;
 }
 
-.toggle{
+.input-box input:focus{
+outline:none;
+border-color:#2563eb;
+box-shadow:0 0 6px rgba(37,99,235,0.3);
+}
+
+/* EYE ICON */
+.eye{
 position:absolute;
 right:12px;
 top:50%;
-transform: translateY(-50%);
+transform:translateY(-50%);
 cursor:pointer;
 font-size:18px;
 color:#555;
+}
+
+.eye:hover{
+color:#2563eb;
+}
+
+/* BUTTON */
+button{
+padding:12px;
+width:100%;
+background: linear-gradient(135deg,#2563eb,#1d4ed8);
+color:white;
+border:none;
+border-radius:10px;
+cursor:pointer;
+font-weight:bold;
+margin-top:10px;
+transition:0.3s;
+}
+
+button:hover{
+transform:scale(1.03);
+}
+
+/* FORGOT */
+.forgot{
+color:#2563eb;
+cursor:pointer;
+margin-top:12px;
+font-size:14px;
+}
+
+.forgot:hover{
+text-decoration:underline;
 }
 
 </style>
@@ -69,18 +115,22 @@ color:#555;
 
 <div class="box">
 
+<img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png" class="logo">
+
 <h2>Parent Login</h2>
 
+<div class="input-box">
 <input id="userID" placeholder="Student ID">
+</div>
 
-<div style="position:relative;">
+<div class="input-box">
 <input type="password" id="password" placeholder="Password">
-<span class="toggle" onclick="togglePassword()">👁</span>
+<span class="eye" onclick="togglePassword()">👁</span>
 </div>
 
 <button onclick="login()">Login</button>
 
-<p onclick="forgotPassword()" style="color:blue;cursor:pointer;margin-top:10px;">
+<p class="forgot" onclick="forgotPassword()">
 Forgot Password?
 </p>
 
@@ -97,7 +147,7 @@ projectId:"sjjs-school-erp"
 firebase.initializeApp(firebaseConfig)
 const db=firebase.firestore()
 
-// 👁 Show / Hide password
+// 👁 toggle password
 function togglePassword(){
 let pass=document.getElementById("password")
 
@@ -108,7 +158,7 @@ pass.type="password"
 }
 }
 
-// 🔐 Login function
+// 🔐 Login
 async function login(){
 
 let id=document.getElementById("userID").value.trim().toUpperCase()
