@@ -227,6 +227,11 @@ alert("Your Password: " + data.Password)
 }
 
 </script>
-
+<script>
+if("serviceWorker" in navigator){
+navigator.serviceWorker.register("sw.js")
+.then(()=>console.log("Service Worker Ready"))
+}
+</script>
 </body>
 </html>
