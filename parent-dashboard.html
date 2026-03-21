@@ -4,6 +4,7 @@
 
 <title>Sundar J.J School - Parent Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2563eb">
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -14,71 +15,85 @@
 
 body{
 font-family:'Segoe UI', Arial;
-background: linear-gradient(135deg,#3b82f6,#93c5fd);
-padding:20px;
+background:#f1f5f9;
 margin:0;
+}
+
+/* HEADER */
+.header{
+background: linear-gradient(135deg,#2563eb,#1d4ed8);
+color:white;
+padding:20px;
 text-align:center;
+border-bottom-left-radius:20px;
+border-bottom-right-radius:20px;
 }
 
-.box{
-background:white;
-padding:25px;
-border-radius:15px;
-width:350px;
-margin:auto;
-box-shadow:0 10px 30px rgba(0,0,0,0.2);
+.header img{
+width:50px;
+margin-bottom:5px;
 }
 
-.logo{
-width:60px;
-margin-bottom:10px;
-}
-
-.title{
-color:#1e3a8a;
+.header h2{
 margin:5px 0;
 }
 
-.subtitle{
-color:#555;
-margin-bottom:20px;
+.header p{
+margin:0;
 font-size:14px;
+opacity:0.9;
 }
 
-.result{
-margin-top:20px;
-text-align:left;
-background:#f1f5f9;
+/* CARD */
+.card{
+background:white;
+margin:15px;
 padding:15px;
-border-radius:10px;
+border-radius:15px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
 }
 
-.result p{
+/* ROW */
+.row{
+display:flex;
+justify-content:space-between;
 margin:6px 0;
+font-size:14px;
 }
 
 .total{
 color:#dc2626;
 font-weight:bold;
+font-size:16px;
 }
 
+/* BUTTON */
 button{
-padding:12px;
+padding:14px;
 width:100%;
 border:none;
-color:white;
-cursor:pointer;
-border-radius:10px;
+border-radius:12px;
 font-weight:bold;
 margin-top:10px;
+font-size:15px;
 }
 
 .payBtn{
-background: linear-gradient(135deg,#2563eb,#1d4ed8);
+background: linear-gradient(135deg,#22c55e,#16a34a);
+color:white;
 }
 
 .logoutBtn{
 background:#ef4444;
+color:white;
+}
+
+/* STATUS */
+.paid{
+text-align:center;
+color:green;
+font-weight:bold;
+margin-top:10px;
 }
 
 </style>
@@ -87,17 +102,14 @@ background:#ef4444;
 
 <body>
 
-<div class="box">
-
-<!-- ✅ LOGO -->
-<img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png" class="logo">
-
-<h2 class="title">Sundar J.J School</h2>
-<p class="subtitle">Parent Dashboard</p>
-
-<div id="result" class="result">Loading...</div>
-
+<!-- HEADER -->
+<div class="header">
+<img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png">
+<h2>Sundar J.J School</h2>
+<p>Parent Dashboard</p>
 </div>
+
+<div id="content"></div>
 
 <script>
 
@@ -111,7 +123,6 @@ projectId: "sjjs-school-erp",
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Login check
 let id = localStorage.getItem("studentID");
 
 if(!id){
@@ -122,62 +133,58 @@ window.location="parent-login.html";
 // Load Data
 async function loadData(){
 
-try{
-
 let doc = await db.collection("students_billing").doc(id).get();
 
 if(doc.exists){
 
 let data = doc.data();
 
-// 🧠 safe default values
 let prevDue = data.Previous_Due || 0;
 let lateFee = data.Late_Fee || 0;
 let month = data.Month || "N/A";
-let today = new Date().toLocaleDateString('en-IN');
+
+let today = new Date().toLocaleDateString('en-IN',{
+day:'numeric', month:'short', year:'numeric'
+});
 
 let totalDue = (data.Balance_Due || 0) + prevDue + lateFee;
-// 🔥 condition
-let actionButton = "";
+
+// ✅ condition
+let action = "";
 
 if(totalDue <= 0){
-actionButton = `
-<p style="color:green; font-weight:bold; text-align:center;">
-✅ Already Paid
-</p>
-`;
+action = `<div class="paid">✅ Already Paid</div>`;
 }else{
-actionButton = `
-<button class="payBtn" onclick="payNow(${totalDue})">
-Pay Now
-</button>
-`;
+action = `<button class="payBtn" onclick="payNow(${totalDue})">Pay Now</button>`;
 }
 
-document.getElementById("result").innerHTML = `
-<p><b>Name:</b> ${data.Student_Name}</p>
-<p><b>Class:</b> ${data.Class}</p>
+document.getElementById("content").innerHTML = `
 
-<p><b>Monthly Fee:</b> ₹${data.Monthly_Fee}</p>
-<p><b>Previous Due:</b> ₹${prevDue}</p>
-<p><b>Late Fee:</b> ₹${lateFee}</p>
-<p><b>Month:</b> ${month}</p>
-<p><b>Date:</b> ${today}</p>
-<p><b>Total Due Amount:</b> ₹${totalDue}</p>
+<div class="card">
+<div class="row"><b>Name:</b> ${data.Student_Name}</div>
+<div class="row"><b>Class:</b> ${data.Class}</div>
+<div class="row"><b>Month:</b> ${month}</div>
+<div class="row"><b>Date:</b> ${today}</div>
+</div>
 
-${actionButton}
+<div class="card">
+<div class="row"><span>Monthly Fee</span><span>₹${data.Monthly_Fee}</span></div>
+<div class="row"><span>Previous Due</span><span>₹${prevDue}</span></div>
+<div class="row"><span>Late Fee</span><span>₹${lateFee}</span></div>
 
-<button class="logoutBtn" onclick="logout()">
-Logout
-</button>
+<hr>
+
+<div class="row total"><span>Total Due</span><span>₹${totalDue}</span></div>
+
+${action}
+</div>
+
+<div class="card">
+<button class="logoutBtn" onclick="logout()">Logout</button>
+</div>
+
 `;
 
-}else{
-document.getElementById("result").innerHTML="❌ No data found";
-}
-
-}catch(err){
-alert("Error: " + err.message);
 }
 
 }
@@ -199,14 +206,10 @@ let options = {
 alert("✅ Payment Successful")
 await updatePayment(amount)
 
-},
-"theme": {
-"color": "#2563eb"
 }
 }
 
-let rzp = new Razorpay(options)
-rzp.open()
+new Razorpay(options).open()
 
 }
 
@@ -226,48 +229,17 @@ if(doc.exists){
 
 let data = doc.data()
 
-let newDue = 0 // reset after full payment
-
 await ref.update({
-Balance_Due: newDue,
+Balance_Due: 0,
 Previous_Due: 0,
 Late_Fee: 0
 })
 
-// Save payment
-await db.collection("stats").doc("payments_list").set({
-list: firebase.firestore.FieldValue.arrayUnion({
-Student_ID: id,
-name: data.Student_Name,
-amount: amount,
-date: new Date().toISOString()
-})
-},{merge:true})
+alert("🎉 Payment Done")
 
-// Receipt
-generateReceipt({
-id: id,
-name: data.Student_Name,
-class: data.Class,
-amount: amount
-})
-
-alert("🎉 Payment Done & Receipt Downloaded")
-}
+loadData()
 
 }
-
-// PDF
-function generateReceipt(data){
-
-const { jsPDF } = window.jspdf
-let doc = new jsPDF()
-
-doc.text("SJJ School Payment Receipt", 20, 20)
-doc.text("Student: " + data.name, 20, 40)
-doc.text("Amount: ₹" + data.amount, 20, 50)
-
-doc.save("receipt.pdf")
 
 }
 
