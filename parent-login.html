@@ -152,17 +152,7 @@ return;
 
 let data=doc.data();
 
-// 🔥 HASH (MATCH WITH APPS SCRIPT)
-const buffer = await crypto.subtle.digest(
-  "SHA-256",
-  new TextEncoder().encode(pass)
-);
-
-const hashArray = Array.from(new Uint8Array(buffer));
-const finalHash = hashArray.map(b => ('0' + (b & 0xFF).toString(16)).slice(-2)).join('');
-
-// 🔥 MATCH
-if(data.Password && data.Password === finalHash){
+if(data.Password === pass){
 
 localStorage.setItem("studentID", id);
 
