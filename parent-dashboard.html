@@ -137,12 +137,6 @@ let month = data.Month || "N/A";
 let date = data.Date || "N/A";
 
 let totalDue = (data.Balance_Due || 0) + prevDue + lateFee;
-
-let prevDue = data.Previous_Due || 0;
-let lateFee = data.Late_Fee || 0;
-
-let totalDue = (data.Balance_Due || 0) + prevDue + lateFee;
-
 // 🔥 condition
 let actionButton = "";
 
@@ -167,7 +161,8 @@ document.getElementById("result").innerHTML = `
 <p><b>Monthly Fee:</b> ₹${data.Monthly_Fee}</p>
 <p><b>Previous Due:</b> ₹${prevDue}</p>
 <p><b>Late Fee:</b> ₹${lateFee}</p>
-
+<p><b>Month:</b> ${month}</p>
+<p><b>Date:</b> ${date}</p>
 <p><b>Total Due Amount:</b> ₹${totalDue}</p>
 
 ${actionButton}
