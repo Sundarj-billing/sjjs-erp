@@ -30,12 +30,15 @@ text-align:center;
 }
 
 input{
-padding:12px;
+padding:10px;
 margin:10px 0;
-width:100%;
+width:calc(100% - 10px);
 border-radius:8px;
-border:1px solid #ccc;
-padding-right:40px; /* ✅ ADD THIS */
+outline:none;
+border:1px solid #2563eb;
+box-shadow:0 0 5px rgba(37,99,235,0.3);
+padding-right:35px;
+box-sizing:border-box; /* 🔥 important */
 }
 
 button{
