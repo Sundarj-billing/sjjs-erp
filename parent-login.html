@@ -12,7 +12,7 @@
 
 body{
 font-family:'Segoe UI', Arial;
-background: linear-gradient(135deg,#3b82f6,#93c5fd);
+background: linear-gradient(135deg,#3b82f6,#60a5fa);
 display:flex;
 justify-content:center;
 align-items:center;
@@ -20,26 +20,30 @@ height:100vh;
 margin:0;
 }
 
+/* MOBILE CARD */
 .box{
 background:white;
-padding:30px;
+padding:25px 20px;
 border-radius:20px;
-width:320px;
+width:90%;
+max-width:360px;
 text-align:center;
-box-shadow:0 15px 40px rgba(0,0,0,0.2);
+box-shadow:0 10px 30px rgba(0,0,0,0.2);
 }
 
+/* LOGO */
 .logo{
-width:60px;
-margin-bottom:10px;
+width:55px;
+margin-bottom:8px;
 }
 
 h2{
-margin-bottom:20px;
+margin:10px 0 20px;
 color:#1e3a8a;
+font-size:22px;
 }
 
-/* INPUT BOX */
+/* INPUT */
 .input-box{
 position:relative;
 margin:12px 0;
@@ -47,22 +51,22 @@ margin:12px 0;
 
 .input-box input{
 width:100%;
-padding:12px;
-padding-right:40px;
-border-radius:10px;
-border:1px solid #ccc;
+padding:14px;
+padding-right:45px;
+border-radius:12px;
+border:1px solid #ddd;
 box-sizing:border-box;
-font-size:14px;
+font-size:15px;
 transition:0.3s;
 }
 
 .input-box input:focus{
 outline:none;
 border-color:#2563eb;
-box-shadow:0 0 6px rgba(37,99,235,0.3);
+box-shadow:0 0 8px rgba(37,99,235,0.3);
 }
 
-/* EYE ICON */
+/* EYE */
 .eye{
 position:absolute;
 right:12px;
@@ -70,41 +74,51 @@ top:50%;
 transform:translateY(-50%);
 cursor:pointer;
 font-size:18px;
-color:#555;
-}
-
-.eye:hover{
-color:#2563eb;
+color:#666;
 }
 
 /* BUTTON */
 button{
-padding:12px;
+padding:14px;
 width:100%;
 background: linear-gradient(135deg,#2563eb,#1d4ed8);
 color:white;
 border:none;
-border-radius:10px;
+border-radius:12px;
 cursor:pointer;
 font-weight:bold;
-margin-top:10px;
+margin-top:12px;
+font-size:15px;
 transition:0.3s;
 }
 
-button:hover{
-transform:scale(1.03);
+button:active{
+transform:scale(0.97);
 }
 
 /* FORGOT */
 .forgot{
 color:#2563eb;
 cursor:pointer;
-margin-top:12px;
+margin-top:14px;
 font-size:14px;
 }
 
-.forgot:hover{
-text-decoration:underline;
+/* 📱 EXTRA MOBILE OPTIMIZATION */
+@media(max-width:400px){
+
+.box{
+padding:20px 15px;
+}
+
+h2{
+font-size:20px;
+}
+
+.input-box input{
+padding:12px;
+}
+
 }
 
 </style>
@@ -130,9 +144,7 @@ text-decoration:underline;
 
 <button onclick="login()">Login</button>
 
-<p class="forgot" onclick="forgotPassword()">
-Forgot Password?
-</p>
+<p class="forgot" onclick="forgotPassword()">Forgot Password?</p>
 
 </div>
 
@@ -147,18 +159,11 @@ projectId:"sjjs-school-erp"
 firebase.initializeApp(firebaseConfig)
 const db=firebase.firestore()
 
-// 👁 toggle password
 function togglePassword(){
 let pass=document.getElementById("password")
-
-if(pass.type==="password"){
-pass.type="text"
-}else{
-pass.type="password"
-}
+pass.type = pass.type === "password" ? "text" : "password"
 }
 
-// 🔐 Login
 async function login(){
 
 let id=document.getElementById("userID").value.trim().toUpperCase()
@@ -174,7 +179,7 @@ try{
 let doc=await db.collection("students_billing").doc(id).get()
 
 if(!doc.exists){
-alert("❌ Invalid ID")
+alert("Invalid ID")
 return
 }
 
@@ -184,12 +189,12 @@ if(data.Password === pass){
 
 localStorage.setItem("studentID", id)
 
-alert("✅ Login Success")
+alert("Login Success")
 
 window.location="parent-dashboard.html"
 
 }else{
-alert("❌ Wrong Password")
+alert("Wrong Password")
 }
 
 }catch(e){
@@ -198,7 +203,6 @@ alert("Error: " + e.message)
 
 }
 
-// 🔁 Forgot password
 async function forgotPassword(){
 
 let id=document.getElementById("userID").value.trim().toUpperCase()
