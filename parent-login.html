@@ -130,16 +130,7 @@ let pass=document.getElementById("password");
 pass.type = pass.type === "password" ? "text" : "password";
 }
 
-// 🔐 HASH FUNCTION (FINAL)
-async function hashPassword(password){
-  const msgBuffer = new TextEncoder().encode(password);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-
-  return hashArray.map(b => ('0' + b.toString(16)).slice(-2)).join('');
-}
-  
-// 🔥 LOGIN FUNCTION (FINAL FIXED)
+// 🔥 LOGIN FUNCTION (FINAL WORKING)
 async function login(){
 
 let id=document.getElementById("userID").value.trim().toUpperCase();
@@ -161,11 +152,17 @@ return;
 
 let data=doc.data();
 
-// 🔥 hash input password
-const hashedInput = await hashPassword(pass);
+// 🔥 HASH (MATCH WITH APPS SCRIPT)
+const buffer = await crypto.subtle.digest(
+  "SHA-256",
+  new TextEncoder().encode(pass)
+);
 
-// 🔥 SAFE CHECK
-if(data.Password && data.Password === hashedInput){
+const hashArray = Array.from(new Uint8Array(buffer));
+const finalHash = hashArray.map(b => ('0' + (b & 0xFF).toString(16)).slice(-2)).join('');
+
+// 🔥 MATCH
+if(data.Password && data.Password === finalHash){
 
 localStorage.setItem("studentID", id);
 
@@ -183,7 +180,7 @@ alert("Error: " + e.message);
 
 }
 
-// 🔥 FORGOT PASSWORD (SAFE)
+// 🔥 FORGOT PASSWORD
 async function forgotPassword(){
 
 let id=document.getElementById("userID").value.trim().toUpperCase();
