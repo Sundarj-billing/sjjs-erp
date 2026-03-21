@@ -3,14 +3,13 @@
 <head>
 
 <title>Sundar J.J School - Parent Dashboard</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  
+
 <style>
 
 body{
@@ -30,9 +29,14 @@ margin:auto;
 box-shadow:0 10px 30px rgba(0,0,0,0.2);
 }
 
+.logo{
+width:60px;
+margin-bottom:10px;
+}
+
 .title{
 color:#1e3a8a;
-margin-bottom:5px;
+margin:5px 0;
 }
 
 .subtitle{
@@ -47,6 +51,15 @@ text-align:left;
 background:#f1f5f9;
 padding:15px;
 border-radius:10px;
+}
+
+.result p{
+margin:6px 0;
+}
+
+.total{
+color:#dc2626;
+font-weight:bold;
 }
 
 button{
@@ -76,6 +89,9 @@ background:#ef4444;
 
 <div class="box">
 
+<!-- ✅ LOGO -->
+<img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png" class="logo">
+
 <h2 class="title">Sundar J.J School</h2>
 <p class="subtitle">Parent Dashboard</p>
 
@@ -85,7 +101,7 @@ background:#ef4444;
 
 <script>
 
-// 🔴 Firebase Config
+// Firebase Config
 const firebaseConfig = {
 apiKey: "AIzaSyArpgBPwqlP5AImr2h32VLmbtaxLr0Bknc",
 authDomain: "sjjs-school-erp.firebaseapp.com",
@@ -95,36 +111,15 @@ projectId: "sjjs-school-erp",
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// 🔐 Check login
+// Login check
 let id = localStorage.getItem("studentID");
 
 if(!id){
 alert("Login first");
 window.location="parent-login.html";
 }
-function generateReceipt(data){
 
-const { jsPDF } = window.jspdf
-let doc = new jsPDF()
-
-doc.setFontSize(18)
-doc.text("SJJ School Payment Receipt", 20, 20)
-
-doc.setFontSize(12)
-
-doc.text("Student ID: " + data.id, 20, 40)
-doc.text("Name: " + data.name, 20, 50)
-doc.text("Class: " + data.class, 20, 60)
-
-doc.text("Amount Paid: ₹" + data.amount, 20, 80)
-doc.text("Date: " + new Date().toLocaleString(), 20, 90)
-
-doc.text("Status: Paid ✅", 20, 110)
-
-doc.save("receipt_" + data.id + ".pdf")
-
-}
-// 📥 Load student data
+// Load Data
 async function loadData(){
 
 try{
@@ -135,15 +130,47 @@ if(doc.exists){
 
 let data = doc.data();
 
+// 🧠 safe default values
+let prevDue = data.Previous_Due || 0;
+let lateFee = data.Late_Fee || 0;
+let month = data.Month || "N/A";
+let date = data.Date || "N/A";
+
+let totalDue = (data.Balance_Due || 0) + prevDue + lateFee;
+
+let prevDue = data.Previous_Due || 0;
+let lateFee = data.Late_Fee || 0;
+
+let totalDue = (data.Balance_Due || 0) + prevDue + lateFee;
+
+// 🔥 condition
+let actionButton = "";
+
+if(totalDue <= 0){
+actionButton = `
+<p style="color:green; font-weight:bold; text-align:center;">
+✅ Already Paid
+</p>
+`;
+}else{
+actionButton = `
+<button class="payBtn" onclick="payNow(${totalDue})">
+Pay Now
+</button>
+`;
+}
+
 document.getElementById("result").innerHTML = `
 <p><b>Name:</b> ${data.Student_Name}</p>
 <p><b>Class:</b> ${data.Class}</p>
-<p><b>Monthly Fee:</b> ₹${data.Monthly_Fee}</p>
-<p><b>Due Amount:</b> ₹${data.Balance_Due}</p>
 
-<button class="payBtn" onclick="payNow(${data.Balance_Due})">
-Pay Now
-</button>
+<p><b>Monthly Fee:</b> ₹${data.Monthly_Fee}</p>
+<p><b>Previous Due:</b> ₹${prevDue}</p>
+<p><b>Late Fee:</b> ₹${lateFee}</p>
+
+<p><b>Total Due Amount:</b> ₹${totalDue}</p>
+
+${actionButton}
 
 <button class="logoutBtn" onclick="logout()">
 Logout
@@ -160,24 +187,21 @@ alert("Error: " + err.message);
 
 }
 
-// 💰 Payment Calculation
+// Payment
 async function payNow(amount){
 
 let charge = amount * 0.02
 let total = Math.round(amount + charge)
 
-// Razorpay options
 let options = {
-"key": "rzp_test_STar8rHKqlaSNf", // 🔴 replace this
-"amount": total * 100, // paisa
+"key": "rzp_test_STar8rHKqlaSNf",
+"amount": total * 100,
 "currency": "INR",
 "name": "SJJ School",
 "description": "Fee Payment",
-"handler": async function (response){
+"handler": async function (){
 
 alert("✅ Payment Successful")
-
-// 🔥 Update Firestore
 await updatePayment(amount)
 
 },
@@ -190,17 +214,15 @@ let rzp = new Razorpay(options)
 rzp.open()
 
 }
-// 🔓 Logout
-function logout(){
 
+// Logout
+function logout(){
 localStorage.removeItem("studentID");
 window.location="parent-login.html";
-
 }
 
+// Update Payment
 async function updatePayment(amount){
-
-let id = localStorage.getItem("studentID")
 
 let ref = db.collection("students_billing").doc(id)
 let doc = await ref.get()
@@ -209,14 +231,15 @@ if(doc.exists){
 
 let data = doc.data()
 
-let newDue = (data.Balance_Due || 0) - amount
-if(newDue < 0) newDue = 0
+let newDue = 0 // reset after full payment
 
 await ref.update({
-Balance_Due: newDue
+Balance_Due: newDue,
+Previous_Due: 0,
+Late_Fee: 0
 })
 
-// save payment
+// Save payment
 await db.collection("stats").doc("payments_list").set({
 list: firebase.firestore.FieldValue.arrayUnion({
 Student_ID: id,
@@ -226,7 +249,7 @@ date: new Date().toISOString()
 })
 },{merge:true})
 
-// 🔥 PDF generate
+// Receipt
 generateReceipt({
 id: id,
 name: data.Student_Name,
@@ -235,12 +258,25 @@ amount: amount
 })
 
 alert("🎉 Payment Done & Receipt Downloaded")
-
 }
 
 }
 
-// reload
+// PDF
+function generateReceipt(data){
+
+const { jsPDF } = window.jspdf
+let doc = new jsPDF()
+
+doc.text("SJJ School Payment Receipt", 20, 20)
+doc.text("Student: " + data.name, 20, 40)
+doc.text("Amount: ₹" + data.amount, 20, 50)
+
+doc.save("receipt.pdf")
+
+}
+
+// Load
 loadData()
 
 </script>
