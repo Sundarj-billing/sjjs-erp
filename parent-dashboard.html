@@ -162,7 +162,7 @@ day:'numeric', month:'short', year:'numeric'
 });
 
 // ✅ Base total (NO charge here)
-let baseTotal = Number(data.Balance_Due || 0) + Number(duePrevious) + Number(lateFee) + Number(examFee);
+let baseTotal = Number(data.Balance_Due || 0);
 
 // ✅ condition
 let action = "";
