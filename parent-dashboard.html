@@ -281,19 +281,41 @@ function downloadReceipt(){
 const { jsPDF } = window.jspdf;
 let doc = new jsPDF();
 
-doc.text("SJJ School Receipt",20,20);
-doc.text("Receipt No: "+rNo.innerText,20,30);
-doc.text("Name: "+rName.innerText,20,40);
-doc.text("ID: "+rID.innerText,20,50);
-doc.text("Class: "+rClass.innerText,20,60);
-doc.text("Amount: ₹"+rAmount.innerText,20,70);
-doc.text("Date: "+rDate.innerText,20,80);
+let img = new Image();
+img.crossOrigin = "Anonymous";
+img.src = "https://raw.githubusercontent.com/Sundarj-billing/sjjs-erp/main/logo.png";
+
+img.onload = function(){
+
+doc.addImage(img,"PNG",80,10,50,50);
+
+doc.setFontSize(16);
+doc.text("SUNDAR JIBANER JANNA SCHOOL",105,70,{align:"center"});
+
+doc.setFontSize(10);
+doc.text("Fultali,Rajeshwarinagar,Dukli,West Tripura",105,76,{align:"center"});
+
+doc.setFontSize(14);
+doc.text("Payment Receipt",105,90,{align:"center"});
+
+doc.line(20,95,190,95);
+
+doc.setFontSize(11);
+
+doc.text("Receipt No: "+rNo.innerText,20,110);
+doc.text("Name: "+rName.innerText,20,120);
+doc.text("ID: "+rID.innerText,20,130);
+doc.text("Class: "+rClass.innerText,20,140);
+
+doc.text("Amount: ₹"+rAmount.innerText,20,160);
+doc.text("Date: "+rDate.innerText,20,170);
 
 doc.setTextColor(200,200,200);
-doc.setFontSize(40);
-doc.text("PAID",60,140,{angle:45});
+doc.setFontSize(60);
+doc.text("PAID",105,200,{angle:45,align:"center"});
 
-doc.save("receipt.pdf");
+doc.save("SJJ_Receipt.pdf");
+};
 }
 
 // CLOSE RECEIPT
