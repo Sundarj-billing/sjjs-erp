@@ -12,16 +12,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link rel="manifest" href="manifest.json">
 
-  
 <style>
-
 body{
 font-family:'Segoe UI', Arial;
 background:#f1f5f9;
 margin:0;
 }
-
-/* HEADER */
 .header{
 background: linear-gradient(135deg,#2563eb,#1d4ed8);
 color:white;
@@ -30,23 +26,18 @@ text-align:center;
 border-bottom-left-radius:20px;
 border-bottom-right-radius:20px;
 }
-
 .header img{
 width:50px;
 margin-bottom:5px;
 }
-
 .header h2{
 margin:5px 0;
 }
-
 .header p{
 margin:0;
 font-size:14px;
 opacity:0.9;
 }
-
-/* CARD */
 .card{
 background:white;
 margin:15px;
@@ -54,22 +45,17 @@ padding:15px;
 border-radius:15px;
 box-shadow:0 5px 15px rgba(0,0,0,0.1);
 }
-
-/* ROW */
 .row{
 display:flex;
 justify-content:space-between;
 margin:6px 0;
 font-size:14px;
 }
-
 .total{
 color:#dc2626;
 font-weight:bold;
 font-size:16px;
 }
-
-/* BUTTON */
 button{
 padding:14px;
 width:100%;
@@ -79,32 +65,26 @@ font-weight:bold;
 margin-top:10px;
 font-size:15px;
 }
-
 .payBtn{
 background: linear-gradient(135deg,#22c55e,#16a34a);
 color:white;
 }
-
 .logoutBtn{
 background:#ef4444;
 color:white;
 }
-
-/* STATUS */
 .paid{
 text-align:center;
 color:green;
 font-weight:bold;
 margin-top:10px;
 }
-
 </style>
 
 </head>
 
 <body>
 
-<!-- HEADER -->
 <div class="header">
 <img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png">
 <h2>Sundar J.J School</h2>
@@ -115,7 +95,7 @@ margin-top:10px;
 
 <script>
 
-// Firebase Config
+// Firebase
 const firebaseConfig = {
 apiKey: "AIzaSyArpgBPwqlP5AImr2h32VLmbtaxLr0Bknc",
 authDomain: "sjjs-school-erp.firebaseapp.com",
@@ -132,7 +112,6 @@ alert("Login first");
 window.location="parent-login.html";
 }
 
-// Load Data
 async function loadData(){
 
 let doc = await db.collection("students_billing").doc(id).get();
@@ -140,9 +119,9 @@ let doc = await db.collection("students_billing").doc(id).get();
 if(doc.exists){
 
 let data = doc.data();
-  let examFee = data.Exam_Fee || 0;
-let studentID = data.Student_ID || "N/A";
 
+let examFee = data.Exam_Fee || 0;
+let studentID = data.Student_ID || "N/A";
 let prevDue = data.Previous_Due || 0;
 let lateFee = data.Late_Fee || 0;
 let month = data.Month || "N/A";
@@ -151,36 +130,42 @@ let today = new Date().toLocaleDateString('en-IN',{
 day:'numeric', month:'short', year:'numeric'
 });
 
-let totalDue = (data.Balance_Due || 0) + prevDue + lateFee + examFee;
+// ✅ Base total
+let baseTotal = Number(data.Balance_Due || 0) + Number(prevDue) + Number(lateFee) + Number(examFee);
+
+// ✅ Charge + Final Total
+let charge = Math.round(baseTotal * 0.02);
+let finalTotal = baseTotal + charge;
 
 // ✅ condition
 let action = "";
 
-if(totalDue <= 0){
+if(finalTotal <= 0){
 action = `<div class="paid">✅ Already Paid</div>`;
 }else{
-action = `<button class="payBtn" onclick="payNow(${totalDue})">Pay Now</button>`;
+action = `<button class="payBtn" onclick="payNow(${finalTotal})">Pay Now</button>`;
 }
 
 document.getElementById("content").innerHTML = `
 
 <div class="card">
 <div class="row"><b>Name:</b> ${data.Student_Name}</div>
-<div class="row"><b>Class:</b> ${data.Class}</div>
 <div class="row"><b>Student ID:</b> ${studentID}</div>
+<div class="row"><b>Class:</b> ${data.Class}</div>
 <div class="row"><b>Month:</b> ${month}</div>
 <div class="row"><b>Date:</b> ${today}</div>
 </div>
 
 <div class="card">
 <div class="row"><span>Monthly Fee</span><span>₹${data.Monthly_Fee}</span></div>
+<div class="row"><span>Exam Fee</span><span>₹${examFee}</span></div>
 <div class="row"><span>Previous Due</span><span>₹${prevDue}</span></div>
 <div class="row"><span>Late Fee</span><span>₹${lateFee}</span></div>
-<div class="row"><span>Exam Fee</span><span>₹${examFee}</span></div>
+<div class="row"><span>Gateway Charge (2%)</span><span>₹${charge}</span></div>
 
 <hr>
 
-<div class="row total"><span>Total Due</span><span>₹${totalDue}</span></div>
+<div class="row total"><span>Total Payable</span><span>₹${finalTotal}</span></div>
 
 ${action}
 </div>
@@ -192,14 +177,12 @@ ${action}
 `;
 
 }
-
 }
 
 // Payment
 async function payNow(amount){
 
-let charge = amount * 0.02
-let total = Math.round(amount + charge)
+let total = amount; // ✅ already includes charge
 
 let options = {
 "key": "rzp_test_STar8rHKqlaSNf",
@@ -209,13 +192,13 @@ let options = {
 "description": "Fee Payment",
 "handler": async function (){
 
-alert("✅ Payment Successful")
-await updatePayment(amount)
+alert("✅ Payment Successful");
+await updatePayment();
 
 }
 }
 
-new Razorpay(options).open()
+new Razorpay(options).open();
 
 }
 
@@ -226,39 +209,33 @@ window.location="parent-login.html";
 }
 
 // Update Payment
-async function updatePayment(amount){
+async function updatePayment(){
 
-let ref = db.collection("students_billing").doc(id)
-let doc = await ref.get()
-
-if(doc.exists){
-
-let data = doc.data()
+let ref = db.collection("students_billing").doc(id);
 
 await ref.update({
 Balance_Due: 0,
 Previous_Due: 0,
 Late_Fee: 0,
 Exam_Fee: 0
-})
+});
 
-alert("🎉 Payment Done")
-
-loadData()
-
-}
+alert("🎉 Payment Done");
+loadData();
 
 }
 
 // Load
-loadData()
+loadData();
 
 </script>
+
 <script>
 if("serviceWorker" in navigator){
 navigator.serviceWorker.register("sw.js")
 .then(()=>console.log("Service Worker Ready"))
 }
 </script>
+
 </body>
 </html>
