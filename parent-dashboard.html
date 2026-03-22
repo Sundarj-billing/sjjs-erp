@@ -221,9 +221,9 @@ document.getElementById("paymentPopup").style.display="flex";
 }
 
 function closePopup(){
-paymentPopup.style.display="none";
+document.getElementById("paymentPopup").style.display="none";
 }
-
+  
 function confirmPayment(){
 closePopup();
 payNow(finalPayAmount);
@@ -350,9 +350,8 @@ Late_Fee: 0,
 Exam_Fee: 0
 });
 
-// LOAD
 loadData();
-
+}
 </script>
 
 </body>
