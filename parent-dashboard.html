@@ -122,7 +122,7 @@ let data = doc.data();
 
 let examFee = data.Exam_Fee || 0;
 let studentID = data.Student_ID || "N/A";
-let prevDue = data.Previous_Due || 0;
+let duePrevious = data.Due_Previous || 0;
 let lateFee = data.Late_Fee || 0;
 let month = data.Month || "N/A";
 
@@ -150,7 +150,7 @@ document.getElementById("content").innerHTML = `
 
 <div class="card">
 <div class="row"><b>Name:</b> ${data.Student_Name}</div>
-<div class="row"><b>Student ID:</b> ${studentID}</div>
+<div class="row"><b>Student ID:</b> ${Student_ID}</div>
 <div class="row"><b>Class:</b> ${data.Class}</div>
 <div class="row"><b>Month:</b> ${month}</div>
 <div class="row"><b>Date:</b> ${today}</div>
@@ -158,9 +158,9 @@ document.getElementById("content").innerHTML = `
 
 <div class="card">
 <div class="row"><span>Monthly Fee</span><span>₹${data.Monthly_Fee}</span></div>
-<div class="row"><span>Exam Fee</span><span>₹${examFee}</span></div>
-<div class="row"><span>Previous Due</span><span>₹${prevDue}</span></div>
-<div class="row"><span>Late Fee</span><span>₹${lateFee}</span></div>
+<div class="row"><span>Exam Fee</span><span>₹${Exam_Fee}</span></div>
+<div class="row"><span>Previous Due</span><span>₹${Due_Previous}</span></div>
+<div class="row"><span>Late Fee</span><span>₹${Late_Fee}</span></div>
 <div class="row"><span>Gateway Charge (2%)</span><span>₹${charge}</span></div>
 
 <hr>
@@ -215,7 +215,7 @@ let ref = db.collection("students_billing").doc(id);
 
 await ref.update({
 Balance_Due: 0,
-Previous_Due: 0,
+Due_Previous: 0,
 Late_Fee: 0,
 Exam_Fee: 0
 });
