@@ -103,6 +103,10 @@ if(doc.exists){
 
 let data = doc.data();
 
+let today = new Date().toLocaleDateString('en-IN',{
+day:'numeric', month:'short', year:'numeric'
+});
+
 let baseTotal = Number(data.Balance_Due || 0);
 
 let action = "";
