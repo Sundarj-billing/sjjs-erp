@@ -4,7 +4,6 @@
 
 <title>Sundar J.J School - Parent Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#2563eb">
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -12,84 +11,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body{
-font-family:'Segoe UI', Arial;
-background:#f1f5f9;
-margin:0;
+body{font-family:'Segoe UI';background:#f1f5f9;margin:0;}
+.header{background:#2563eb;color:white;padding:20px;text-align:center;}
+.card{background:white;margin:15px;padding:15px;border-radius:10px;}
+.row{display:flex;justify-content:space-between;margin:6px 0;}
+.total{color:red;font-weight:bold;}
+button{padding:12px;width:100%;margin-top:10px;border:none;border-radius:8px;}
+.payBtn{background:green;color:white;}
+.logoutBtn{background:red;color:white;}
+.paid{text-align:center;color:green;font-weight:bold;}
+#paymentPopup,#receiptPopup{
+display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+background:rgba(0,0,0,0.5);justify-content:center;align-items:center;
 }
-.header{
-background: linear-gradient(135deg,#2563eb,#1d4ed8);
-color:white;
-padding:20px;
-text-align:center;
-border-bottom-left-radius:20px;
-border-bottom-right-radius:20px;
-}
-.header img{
-width:50px;
-margin-bottom:5px;
-}
-.card{
-background:white;
-margin:15px;
-padding:15px;
-border-radius:15px;
-box-shadow:0 5px 15px rgba(0,0,0,0.1);
-}
-.row{
-display:flex;
-justify-content:space-between;
-margin:6px 0;
-font-size:14px;
-}
-.total{
-color:#dc2626;
-font-weight:bold;
-font-size:16px;
-}
-button{
-padding:14px;
-width:100%;
-border:none;
-border-radius:12px;
-font-weight:bold;
-margin-top:10px;
-font-size:15px;
-}
-.payBtn{
-background: linear-gradient(135deg,#22c55e,#16a34a);
-color:white;
-}
-.logoutBtn{
-background:#ef4444;
-color:white;
-}
-.paid{
-text-align:center;
-color:green;
-font-weight:bold;
-margin-top:10px;
-}
-
-/* POPUP */
-#paymentPopup{
-display:none;
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.5);
-justify-content:center;
-align-items:center;
-}
-.popupBox{
-background:white;
-padding:20px;
-border-radius:15px;
-width:90%;
-max-width:350px;
-}
+.popupBox{background:white;padding:20px;border-radius:10px;width:90%;max-width:350px;}
 </style>
 
 </head>
@@ -97,28 +32,44 @@ max-width:350px;
 <body>
 
 <div class="header">
-<img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png">
 <h2>Sundar J.J School</h2>
 <p>Parent Dashboard</p>
 </div>
 
 <div id="content"></div>
 
-<!-- ✅ POPUP -->
+<!-- PAYMENT POPUP -->
 <div id="paymentPopup">
 <div class="popupBox">
-
-<h3 style="text-align:center;">Payment Details</h3>
-
+<h3>Payment Details</h3>
 <div class="row"><span>Total Due</span><span id="dueAmount"></span></div>
-<div class="row"><span>Processing Charge (2%)</span><span id="chargeAmount"></span></div>
-
+<div class="row"><span>Charge (2%)</span><span id="chargeAmount"></span></div>
 <hr>
-
 <div class="row total"><span>Total Payable</span><span id="finalAmount"></span></div>
-
 <button class="payBtn" onclick="confirmPayment()">Pay Now</button>
 <button class="logoutBtn" onclick="closePopup()">Cancel</button>
+</div>
+</div>
+
+<!-- RECEIPT POPUP -->
+<div id="receiptPopup">
+<div class="popupBox" id="receiptContent">
+
+<h3 style="text-align:center;">Payment Receipt</h3>
+
+<p><b>Receipt No:</b> <span id="rNo"></span></p>
+<p><b>Name:</b> <span id="rName"></span></p>
+<p><b>Student ID:</b> <span id="rID"></span></p>
+<p><b>Class:</b> <span id="rClass"></span></p>
+<p><b>Amount:</b> ₹<span id="rAmount"></span></p>
+<p><b>Date:</b> <span id="rDate"></span></p>
+
+<div style="position:absolute;top:40%;left:20%;font-size:60px;color:rgba(0,0,0,0.1);transform:rotate(-30deg);">
+PAID
+</div>
+
+<button class="payBtn" onclick="downloadReceipt()">Download</button>
+<button class="logoutBtn" onclick="closeReceipt()">Close</button>
 
 </div>
 </div>
@@ -136,7 +87,6 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 let id = localStorage.getItem("studentID");
-
 if(!id){
 alert("Login first");
 window.location="parent-login.html";
@@ -144,6 +94,7 @@ window.location="parent-login.html";
 
 let finalPayAmount = 0;
 
+// LOAD DATA
 async function loadData(){
 
 let doc = await db.collection("students_billing").doc(id).get();
@@ -152,53 +103,23 @@ if(doc.exists){
 
 let data = doc.data();
 
-let examFee = data.Exam_Fee || 0;
-let studentID = data.Student_ID || "N/A";
-let duePrevious = data.Due_Previous || 0;
-let lateFee = data.Late_Fee || 0;
-let month = data.Month || "N/A";
-
-let today = new Date().toLocaleDateString('en-IN',{
-day:'numeric', month:'short', year:'numeric'
-});
-
-// ✅ Base total (NO charge here)
 let baseTotal = Number(data.Balance_Due || 0);
 
-// ✅ condition
-let action = "";
-
-if(baseTotal <= 0){
-action = `<div class="paid">✅ Already Paid</div>`;
-}else{
-action = `<button class="payBtn" onclick="openPaymentPopup(${baseTotal})">Pay Now</button>`;
-}
+let action = baseTotal<=0 
+? `<div class="paid">✅ Already Paid</div>`
+: `<button class="payBtn" onclick="openPaymentPopup(${baseTotal})">Pay Now</button>`;
 
 document.getElementById("content").innerHTML = `
 
 <div class="card">
 <div class="row"><b>Name:</b> ${data.Student_Name}</div>
-<div class="row"><b>Student ID:</b> ${studentID}</div>
+<div class="row"><b>ID:</b> ${data.Student_ID}</div>
 <div class="row"><b>Class:</b> ${data.Class}</div>
-<div class="row"><b>Month:</b> ${month}</div>
-<div class="row"><b>Date:</b> ${today}</div>
 </div>
 
 <div class="card">
-<div class="row"><span>Monthly Fee</span><span>₹${data.Monthly_Fee}</span></div>
-<div class="row"><span>Exam Fee</span><span>₹${examFee}</span></div>
-<div class="row"><span>Previous Due</span><span>₹${duePrevious}</span></div>
-<div class="row"><span>Late Fee</span><span>₹${lateFee}</span></div>
-
-<hr>
-
-<div class="row total"><span>Total Due</span><span>₹${baseTotal}</span></div>
-
+<div class="row"><span>Total Due</span><span>₹${baseTotal}</span></div>
 ${action}
-</div>
-
-<div class="card">
-<button class="logoutBtn" onclick="logout()">Logout</button>
 </div>
 
 `;
@@ -206,23 +127,22 @@ ${action}
 }
 }
 
-// ✅ OPEN POPUP
+// PAYMENT POPUP
 function openPaymentPopup(amount){
-
-let charge = Math.round(amount * 0.02);
-let final = amount + charge;
+let charge = Math.round(amount*0.02);
+let final = amount+charge;
 
 finalPayAmount = final;
 
-document.getElementById("dueAmount").innerText = "₹" + amount;
-document.getElementById("chargeAmount").innerText = "₹" + charge;
-document.getElementById("finalAmount").innerText = "₹" + final;
+dueAmount.innerText="₹"+amount;
+chargeAmount.innerText="₹"+charge;
+finalAmount.innerText="₹"+final;
 
-document.getElementById("paymentPopup").style.display = "flex";
+paymentPopup.style.display="flex";
 }
 
 function closePopup(){
-document.getElementById("paymentPopup").style.display = "none";
+paymentPopup.style.display="none";
 }
 
 function confirmPayment(){
@@ -230,76 +150,83 @@ closePopup();
 payNow(finalPayAmount);
 }
 
-// Payment
+// PAYMENT
 async function payNow(amount){
 
 let options = {
-"key": "rzp_test_STar8rHKqlaSNf",
-"amount": amount * 100,
-"currency": "INR",
-"name": "SJJ School",
-"description": "Fee Payment",
-handler: async function (){
+key:"rzp_test_STar8rHKqlaSNf",
+amount:amount*100,
+currency:"INR",
+name:"SJJ School",
+
+handler: async function(){
 
 alert("✅ Payment Successful");
 
-// 👉 data আবার fetch
 let docSnap = await db.collection("students_billing").doc(id).get();
 let data = docSnap.data();
 
-// 👉 receipt generate
-generateReceipt(data, amount);
+showReceipt(data,amount);
 
 await updatePayment();
 
 }
-}
+
+};
 
 new Razorpay(options).open();
-
 }
 
-// Logout
-function logout(){
-localStorage.removeItem("studentID");
-window.location="parent-login.html";
+// RECEIPT SHOW
+function showReceipt(data,amount){
+
+let receiptNo = "SJ-"+Date.now();
+
+rNo.innerText = receiptNo;
+rName.innerText = data.Student_Name;
+rID.innerText = data.Student_ID;
+rClass.innerText = data.Class;
+rAmount.innerText = amount;
+rDate.innerText = new Date().toLocaleString();
+
+receiptPopup.style.display="flex";
 }
 
-// Update Payment
-async function updatePayment(){
-
-let ref = db.collection("students_billing").doc(id);
-
-await ref.update({
-Balance_Due: 0,
-Due_Previous: 0,
-Late_Fee: 0,
-Exam_Fee: 0
-});
-
-alert("🎉 Payment Done");
-loadData();
-
-}
-function generateReceipt(data, amount){
+// DOWNLOAD PDF
+function downloadReceipt(){
 
 const { jsPDF } = window.jspdf;
 let doc = new jsPDF();
 
-doc.setFontSize(16);
-doc.text("SJJ School Payment Receipt", 20, 20);
+doc.text("SJJ School Receipt",20,20);
+doc.text("Receipt No: "+rNo.innerText,20,30);
+doc.text("Name: "+rName.innerText,20,40);
+doc.text("ID: "+rID.innerText,20,50);
+doc.text("Class: "+rClass.innerText,20,60);
+doc.text("Amount: ₹"+rAmount.innerText,20,70);
+doc.text("Date: "+rDate.innerText,20,80);
 
-doc.setFontSize(12);
-doc.text("Student Name: " + data.Student_Name, 20, 40);
-doc.text("Student ID: " + data.Student_ID, 20, 50);
-doc.text("Class: " + data.Class, 20, 60);
-
-doc.text("Amount Paid: ₹" + amount, 20, 80);
-doc.text("Date: " + new Date().toLocaleString(), 20, 90);
+doc.setTextColor(200,200,200);
+doc.setFontSize(40);
+doc.text("PAID",60,140,{angle:45});
 
 doc.save("receipt.pdf");
 }
-// Load
+
+// CLOSE RECEIPT
+function closeReceipt(){
+receiptPopup.style.display="none";
+}
+
+// UPDATE
+async function updatePayment(){
+await db.collection("students_billing").doc(id).update({
+Balance_Due:0
+});
+loadData();
+}
+
+// LOAD
 loadData();
 
 </script>
