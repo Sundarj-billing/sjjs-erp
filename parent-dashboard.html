@@ -176,6 +176,7 @@ let doc = await db.collection("students_billing").doc(id).get();
 if(doc.exists){
 
 let data = doc.data();
+  window.studentData = data;
 
 let today = new Date().toLocaleDateString('en-IN',{
 day:'numeric', month:'short', year:'numeric'
@@ -261,13 +262,13 @@ handler: async function(){
 
 alert("✅ Payment Successful");
 
-let docSnap = await db.collection("students_billing").doc(id).get();
-let data = docSnap.data();
+let data = window.studentData;
 
-  showReceipt(data,amount);
+showReceipt(data,amount);
 
-// 🔥 Amount_Paid update
-await updatePayment(amount);
+// 🔥 FIXED
+let actualAmount = Math.round(amount / 1.02);
+await updatePayment(actualAmount);
 
 }
 
@@ -421,7 +422,10 @@ window.location = "parent-login.html";
 }
 // UPDATE
 async function updatePayment(paidAmount){
-
+if(!window.studentData){
+alert("Data not loaded properly");
+return;
+}
 let data = window.studentData;
 
 // আগের paid amount
