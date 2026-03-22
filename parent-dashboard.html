@@ -238,9 +238,17 @@ let options = {
 "currency": "INR",
 "name": "SJJ School",
 "description": "Fee Payment",
-"handler": async function (){
+handler: async function (){
 
 alert("✅ Payment Successful");
+
+// 👉 data আবার fetch
+let docSnap = await db.collection("students_billing").doc(id).get();
+let data = docSnap.data();
+
+// 👉 receipt generate
+generateReceipt(data, amount);
+
 await updatePayment();
 
 }
@@ -272,7 +280,24 @@ alert("🎉 Payment Done");
 loadData();
 
 }
+function generateReceipt(data, amount){
 
+const { jsPDF } = window.jspdf;
+let doc = new jsPDF();
+
+doc.setFontSize(16);
+doc.text("SJJ School Payment Receipt", 20, 20);
+
+doc.setFontSize(12);
+doc.text("Student Name: " + data.Student_Name, 20, 40);
+doc.text("Student ID: " + data.Student_ID, 20, 50);
+doc.text("Class: " + data.Class, 20, 60);
+
+doc.text("Amount Paid: ₹" + amount, 20, 80);
+doc.text("Date: " + new Date().toLocaleString(), 20, 90);
+
+doc.save("receipt.pdf");
+}
 // Load
 loadData();
 
