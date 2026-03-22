@@ -213,11 +213,11 @@ let final = amount+charge;
 
 finalPayAmount = final;
 
-dueAmount.innerText="₹"+amount;
-chargeAmount.innerText="₹"+charge;
-finalAmount.innerText="₹"+final;
+document.getElementById("dueAmount").innerText="₹"+amount;
+document.getElementById("chargeAmount").innerText="₹"+charge;
+document.getElementById("finalAmount").innerText="₹"+final;
 
-paymentPopup.style.display="flex";
+document.getElementById("paymentPopup").style.display="flex";
 }
 
 function closePopup(){
@@ -268,7 +268,7 @@ rClass.innerText = data.Class;
 rAmount.innerText = amount;
 rDate.innerText = new Date().toLocaleString();
 
-receiptPopup.style.display="flex";
+document.getElementById("receiptPopup").style.display="flex";
 }
 
 // DOWNLOAD PDF
@@ -277,74 +277,58 @@ function downloadReceipt(){
 const { jsPDF } = window.jspdf;
 let doc = new jsPDF();
 
-let receiptNo = document.getElementById("rNo").innerText;
-
-// 🖼️ LOGO (replace with your github raw link)
+  
+// 🖼️ Load image first
 let img = new Image();
-img.src = "https://raw.githubusercontent.com/Sundarj-billing/sjjs-erp/main/logo.png?raw=true";
+img.crossOrigin = "Anonymous";
+img.src = "https://raw.githubusercontent.com/Sundarj-billing/sjjs-erp/main/logo.png";
 
 img.onload = function(){
 
-// 🔷 LOGO add
-doc.addImage(img, 'PNG', 20, 15, 30, 30);
+// Logo
+doc.addImage(img, "PNG", 80, 10, 50, 50);
 
-// 🔷 HEADER
-doc.setFontSize(18);
-doc.text("Sundar J.J School", 60, 25);
+// School Name
+doc.setFontSize(16);
+doc.text("SUNDAR JIBANER JANNA SCHOOL", 105, 70, {align:"center"});
 
 doc.setFontSize(10);
-doc.text("Address: Your School Address", 60, 32);
-doc.text("Phone: 9876543210", 60, 37);
+doc.text("Fultali, R Nagar, Rayermura, West Tripura", 105, 76, {align:"center"});
 
-// LINE
-doc.line(20, 50, 190, 50);
-
-// TITLE
+// Title
 doc.setFontSize(14);
-doc.text("FEE PAYMENT RECEIPT", 60, 60);
+doc.text("Payment Receipt", 105, 90, {align:"center"});
 
-// DETAILS
+// Line
+doc.line(20, 95, 190, 95);
+
+// Details
 doc.setFontSize(11);
 
-doc.text("Receipt No: " + receiptNo, 20, 75);
-doc.text("Date: " + document.getElementById("rDate").innerText, 140, 75);
+doc.text("Receipt No: " + rNo.innerText, 20, 110);
+doc.text("Student Name: " + rName.innerText, 20, 120);
+doc.text("Student ID: " + rID.innerText, 20, 130);
+doc.text("Class: " + rClass.innerText, 20, 140);
 
-doc.text("Student Name: " + document.getElementById("rName").innerText, 20, 90);
-doc.text("Student ID: " + document.getElementById("rID").innerText, 20, 100);
-doc.text("Class: " + document.getElementById("rClass").innerText, 20, 110);
+doc.text("Amount Paid: ₹" + rAmount.innerText, 20, 160);
+doc.text("Date: " + rDate.innerText, 20, 170);
 
-// TABLE HEADER
-doc.setFontSize(12);
-doc.text("Description", 20, 130);
-doc.text("Amount (₹)", 150, 130);
-
-doc.line(20, 133, 190, 133);
-
-// DATA
-doc.setFontSize(11);
-doc.text("School Fee Payment", 20, 145);
-doc.text("₹ " + document.getElementById("rAmount").innerText, 150, 145);
-
-doc.line(20, 150, 190, 150);
-
-// TOTAL
-doc.setFontSize(12);
-doc.text("Total Paid: ₹ " + document.getElementById("rAmount").innerText, 20, 165);
-
-// WATERMARK
+// Watermark
 doc.setTextColor(200,200,200);
-doc.setFontSize(50);
-doc.text("PAID", 60, 220, { angle: 45 });
+doc.setFontSize(60);
+doc.text("PAID", 105, 200, {angle:45, align:"center"});
 
-// FOOTER
+// Reset color
 doc.setTextColor(0,0,0);
-doc.setFontSize(10);
-doc.text("Thank you for your payment!", 60, 280);
 
-// SAVE
+// Footer
+doc.setFontSize(10);
+doc.text("Thank you for your payment!", 105, 280, {align:"center"});
+
+// Save
 doc.save("SJJ_Receipt.pdf");
 
-}
+};
 
 }
 // CLOSE RECEIPT
@@ -360,10 +344,11 @@ window.location = "parent-login.html";
 // UPDATE
 async function updatePayment(){
 await db.collection("students_billing").doc(id).update({
-Balance_Due:0
+Balance_Due: 0,
+Due_Previous: 0,
+Late_Fee: 0,
+Exam_Fee: 0
 });
-loadData();
-}
 
 // LOAD
 loadData();
