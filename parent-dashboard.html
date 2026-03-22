@@ -277,21 +277,76 @@ function downloadReceipt(){
 const { jsPDF } = window.jspdf;
 let doc = new jsPDF();
 
-doc.text("SJJ School Receipt",20,20);
-doc.text("Receipt No: "+rNo.innerText,20,30);
-doc.text("Name: "+rName.innerText,20,40);
-doc.text("ID: "+rID.innerText,20,50);
-doc.text("Class: "+rClass.innerText,20,60);
-doc.text("Amount: ₹"+rAmount.innerText,20,70);
-doc.text("Date: "+rDate.innerText,20,80);
+let receiptNo = document.getElementById("rNo").innerText;
 
+// 🖼️ LOGO (replace with your github raw link)
+let img = new Image();
+img.src = "PASTE_YOUR_LOGO_LINK_HERE";
+
+img.onload = function(){
+
+// 🔷 LOGO add
+doc.addImage(img, 'PNG', 20, 15, 30, 30);
+
+// 🔷 HEADER
+doc.setFontSize(18);
+doc.text("Sundar J.J School", 60, 25);
+
+doc.setFontSize(10);
+doc.text("Address: Your School Address", 60, 32);
+doc.text("Phone: 9876543210", 60, 37);
+
+// LINE
+doc.line(20, 50, 190, 50);
+
+// TITLE
+doc.setFontSize(14);
+doc.text("FEE PAYMENT RECEIPT", 60, 60);
+
+// DETAILS
+doc.setFontSize(11);
+
+doc.text("Receipt No: " + receiptNo, 20, 75);
+doc.text("Date: " + document.getElementById("rDate").innerText, 140, 75);
+
+doc.text("Student Name: " + document.getElementById("rName").innerText, 20, 90);
+doc.text("Student ID: " + document.getElementById("rID").innerText, 20, 100);
+doc.text("Class: " + document.getElementById("rClass").innerText, 20, 110);
+
+// TABLE HEADER
+doc.setFontSize(12);
+doc.text("Description", 20, 130);
+doc.text("Amount (₹)", 150, 130);
+
+doc.line(20, 133, 190, 133);
+
+// DATA
+doc.setFontSize(11);
+doc.text("School Fee Payment", 20, 145);
+doc.text("₹ " + document.getElementById("rAmount").innerText, 150, 145);
+
+doc.line(20, 150, 190, 150);
+
+// TOTAL
+doc.setFontSize(12);
+doc.text("Total Paid: ₹ " + document.getElementById("rAmount").innerText, 20, 165);
+
+// WATERMARK
 doc.setTextColor(200,200,200);
-doc.setFontSize(40);
-doc.text("PAID",60,140,{angle:45});
+doc.setFontSize(50);
+doc.text("PAID", 60, 220, { angle: 45 });
 
-doc.save("receipt.pdf");
+// FOOTER
+doc.setTextColor(0,0,0);
+doc.setFontSize(10);
+doc.text("Thank you for your payment!", 60, 280);
+
+// SAVE
+doc.save("SJJ_Receipt.pdf");
+
 }
 
+}
 // CLOSE RECEIPT
 function closeReceipt(){
 receiptPopup.style.display="none";
