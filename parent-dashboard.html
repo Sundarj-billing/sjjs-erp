@@ -105,25 +105,40 @@ let data = doc.data();
 
 let baseTotal = Number(data.Balance_Due || 0);
 
-let action = baseTotal<=0 
-? `<div class="paid">✅ Already Paid</div>`
-: `<button class="payBtn" onclick="openPaymentPopup(${baseTotal})">Pay Now</button>`;
+let action = "";
 
-document.getElementById("content").innerHTML = `
+if(baseTotal <= 0){
+action = `<div class="paid">✅ Payment Completed</div>`;
+}else{
+action = `<button class="payBtn" onclick="openPaymentPopup(${baseTotal})">Pay Now</button>`;
+}
+  document.getElementById("content").innerHTML = `
 
 <div class="card">
 <div class="row"><b>Name:</b> ${data.Student_Name}</div>
-<div class="row"><b>ID:</b> ${data.Student_ID}</div>
+<div class="row"><b>Student ID:</b> ${data.Student_ID}</div>
 <div class="row"><b>Class:</b> ${data.Class}</div>
+<div class="row"><b>Month:</b> ${data.Month || "N/A"}</div>
+<div class="row"><b>Date:</b> ${today}</div>
 </div>
 
 <div class="card">
-<div class="row"><span>Total Due</span><span>₹${baseTotal}</span></div>
+<div class="row"><span>Monthly Fee</span><span>₹${data.Monthly_Fee || 0}</span></div>
+<div class="row"><span>Exam Fee</span><span>₹${data.Exam_Fee || 0}</span></div>
+<div class="row"><span>Previous Due</span><span>₹${data.Due_Previous || 0}</span></div>
+<div class="row"><span>Late Fee</span><span>₹${data.Late_Fee || 0}</span></div>
+
+<hr>
+
+<div class="row total"><span>Total Due</span><span>₹${baseTotal}</span></div>
+
 ${action}
 </div>
 
+<div class="card">
+<button class="logoutBtn" onclick="logout()">Logout</button>
+</div>
 `;
-
 }
 }
 
