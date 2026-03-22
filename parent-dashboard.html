@@ -11,20 +11,75 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body{font-family:'Segoe UI';background:#f1f5f9;margin:0;}
-.header{background:#2563eb;color:white;padding:20px;text-align:center;}
-.card{background:white;margin:15px;padding:15px;border-radius:10px;}
-.row{display:flex;justify-content:space-between;margin:6px 0;}
-.total{color:red;font-weight:bold;}
+
+.card{
+background:white;
+margin:15px;
+padding:18px;
+border-radius:15px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+border-left:5px solid #22c55e; /* green side line */
+}
+
+.card h3{
+margin-bottom:10px;
+color:#2563eb;
+font-size:16px;
+border-bottom:1px solid #eee;
+padding-bottom:5px;
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+margin:8px 0;
+font-size:14px;
+}
+
+.total{
+color:#16a34a;
+font-weight:bold;
+font-size:17px;
+}
+  
+.paid{
+background:#dcfce7;
+color:#166534;
+padding:8px;
+border-radius:8px;
+text-align:center;
+font-weight:bold;
+}
+  
+body{
+font-family:'Segoe UI';
+background:#ecfdf5; /* light green */
+margin:0;
+}
+  
+.header{
+background: linear-gradient(135deg,#16a34a,#15803d);
+color:white;
+padding:20px;
+text-align:center;
+}
+  
 button{padding:12px;width:100%;margin-top:10px;border:none;border-radius:8px;}
 .payBtn{background:green;color:white;}
 .logoutBtn{background:red;color:white;}
-.paid{text-align:center;color:green;font-weight:bold;}
+  
+
+  
 #paymentPopup,#receiptPopup{
 display:none;position:fixed;top:0;left:0;width:100%;height:100%;
 background:rgba(0,0,0,0.5);justify-content:center;align-items:center;
 }
 .popupBox{background:white;padding:20px;border-radius:10px;width:90%;max-width:350px;}
+
+  #receiptContent{
+position:relative;
+}
+  
 </style>
 
 </head>
@@ -119,18 +174,22 @@ action = `<button class="payBtn" onclick="openPaymentPopup(${baseTotal})">Pay No
   document.getElementById("content").innerHTML = `
 
 <div class="card">
-<div class="row"><b>Name:</b> ${data.Student_Name}</div>
-<div class="row"><b>Student ID:</b> ${data.Student_ID}</div>
-<div class="row"><b>Class:</b> ${data.Class}</div>
-<div class="row"><b>Month:</b> ${data.Month || "N/A"}</div>
-<div class="row"><b>Date:</b> ${today}</div>
+<h3>👤 Student Details</h3>
+
+<div class="row"><span>🧑 Name</span><span>${data.Student_Name}</span></div>
+<div class="row"><span>🆔 Student ID</span><span>${data.Student_ID}</span></div>
+<div class="row"><span>🏫 Class</span><span>${data.Class}</span></div>
+<div class="row"><span>📅 Month</span><span>${data.Month || "N/A"}</span></div>
+<div class="row"><span>📆 Date</span><span>${today}</span></div>
 </div>
 
 <div class="card">
-<div class="row"><span>Monthly Fee</span><span>₹${data.Monthly_Fee || 0}</span></div>
-<div class="row"><span>Exam Fee</span><span>₹${data.Exam_Fee || 0}</span></div>
-<div class="row"><span>Previous Due</span><span>₹${data.Due_Previous || 0}</span></div>
-<div class="row"><span>Late Fee</span><span>₹${data.Late_Fee || 0}</span></div>
+<h3>💰 Payment Details</h3>
+
+<div class="row"><span>💵 Monthly Fee</span><span>₹${data.Monthly_Fee || 0}</span></div>
+<div class="row"><span>📝 Exam Fee</span><span>₹${data.Exam_Fee || 0}</span></div>
+<div class="row"><span>📌 Previous Due</span><span>₹${data.Due_Previous || 0}</span></div>
+<div class="row"><span>⏰ Late Fee</span><span>₹${data.Late_Fee || 0}</span></div>
 
 <hr>
 
@@ -142,10 +201,11 @@ ${action}
 <div class="card">
 <button class="logoutBtn" onclick="logout()">Logout</button>
 </div>
+
 `;
 }
 }
-
+  
 // PAYMENT POPUP
 function openPaymentPopup(amount){
 let charge = Math.round(amount*0.02);
@@ -236,7 +296,12 @@ doc.save("receipt.pdf");
 function closeReceipt(){
 receiptPopup.style.display="none";
 }
-
+function logout(){
+if(confirm("Are you sure to logout?")){
+localStorage.removeItem("studentID");
+window.location = "parent-login.html";
+}
+}
 // UPDATE
 async function updatePayment(){
 await db.collection("students_billing").doc(id).update({
