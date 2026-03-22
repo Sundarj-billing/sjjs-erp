@@ -131,7 +131,7 @@ day:'numeric', month:'short', year:'numeric'
 });
 
 // ✅ Base total
-let baseTotal = Number(data.Balance_Due || 0) + Number(prevDue) + Number(lateFee) + Number(examFee);
+let baseTotal = Number(data.Balance_Due || 0) + Number(duePrevious) + Number(lateFee) + Number(examFee);
 
 // ✅ Charge + Final Total
 let charge = Math.round(baseTotal * 0.02);
@@ -150,7 +150,7 @@ document.getElementById("content").innerHTML = `
 
 <div class="card">
 <div class="row"><b>Name:</b> ${data.Student_Name}</div>
-<div class="row"><b>Student ID:</b> ${Student_ID}</div>
+<div class="row"><b>Student ID:</b> ${studentID}</div>
 <div class="row"><b>Class:</b> ${data.Class}</div>
 <div class="row"><b>Month:</b> ${month}</div>
 <div class="row"><b>Date:</b> ${today}</div>
@@ -158,10 +158,9 @@ document.getElementById("content").innerHTML = `
 
 <div class="card">
 <div class="row"><span>Monthly Fee</span><span>₹${data.Monthly_Fee}</span></div>
-<div class="row"><span>Exam Fee</span><span>₹${Exam_Fee}</span></div>
-<div class="row"><span>Previous Due</span><span>₹${Due_Previous}</span></div>
-<div class="row"><span>Late Fee</span><span>₹${Late_Fee}</span></div>
-<div class="row"><span>Gateway Charge (2%)</span><span>₹${charge}</span></div>
+<div class="row"><span>Exam Fee</span><span>₹${examFee}</span></div>
+<div class="row"><span>Previous Due</span><span>₹${duePrevious}</span></div>
+<div class="row"><span>Late Fee</span><span>₹${lateFee}</span></div>
 
 <hr>
 
