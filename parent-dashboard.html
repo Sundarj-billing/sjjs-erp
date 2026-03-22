@@ -296,6 +296,7 @@ function downloadReceipt(){
 const { jsPDF } = window.jspdf;
 let doc = new jsPDF();
 
+// Data
 let receiptNo = document.getElementById("rNo").innerText;
 let name = document.getElementById("rName").innerText;
 let idd = document.getElementById("rID").innerText;
@@ -303,10 +304,12 @@ let classs = document.getElementById("rClass").innerText;
 let amount = document.getElementById("rAmount").innerText;
 let date = document.getElementById("rDate").innerText;
 
-// 👉 Logo URL
+// Logo
 let logoUrl = "https://raw.githubusercontent.com/Sundarj-billing/sjjs-erp/main/logo.png";
 
-// 👉 Image load properly
+// Watermark image (তোমার দেওয়া image upload করে URL দাও)
+let watermarkUrl = "PASTE_YOUR_IMAGE_LINK_HERE";
+
 fetch(logoUrl)
 .then(res => res.blob())
 .then(blob => {
@@ -315,44 +318,76 @@ let reader = new FileReader();
 
 reader.onload = function(){
 
-// ✅ Logo
-doc.addImage(reader.result,"PNG",80,10,50,50);
+// 🔷 LOGO
+doc.addImage(reader.result,"PNG",80,10,50,40);
 
-// ✅ School Name
-doc.setFontSize(16);
+// 🔷 SCHOOL NAME
 doc.setFont("helvetica","bold");
-doc.text("SUNDAR JIBANER JANNA SCHOOL",105,70,{align:"center"});
+doc.setFontSize(16);
+doc.text("SUNDAR JIBANER JANNA SCHOOL",105,55,{align:"center"});
 
-// ✅ Address
+// 🔷 ADDRESS
 doc.setFontSize(10);
 doc.setFont("helvetica","normal");
-doc.text("Fultali, Rajeshwarinagar, Dukli, West Tripura",105,76,{align:"center"});
+doc.text("Fultali, Rajeshwarinagar, Dukli, West Tripura",105,62,{align:"center"});
 
-// Line
-doc.line(20,80,190,80);
+// LINE
+doc.line(20,68,190,68);
 
-// Title
+// 🔷 TITLE
 doc.setFontSize(14);
-doc.text("Payment Receipt",105,90,{align:"center"});
+doc.text("Payment Receipt",105,78,{align:"center"});
 
-// Details
+// ✅ GREEN PAYMENT RECEIVED
+doc.setTextColor(0,150,0);
+doc.setFontSize(13);
+doc.setFont("helvetica","bold");
+doc.text("Payment Received",105,88,{align:"center"});
+
+// RESET COLOR
+doc.setTextColor(0,0,0);
+
+// 🔷 DETAILS CENTER ALIGN
 doc.setFontSize(11);
 
-doc.text("Receipt No: "+receiptNo,20,110);
-doc.text("Name: "+name,20,120);
-doc.text("Student ID: "+idd,20,130);
-doc.text("Class: "+classs,20,140);
+let y = 105;
 
-doc.text("Amount: Rs "+amount,20,160);
-doc.text("Date: "+date,20,170);
+doc.text("Receipt No: "+receiptNo,105,y,{align:"center"});
+y+=10;
+doc.text("Name: "+name,105,y,{align:"center"});
+y+=10;
+doc.text("Student ID: "+idd,105,y,{align:"center"});
+y+=10;
+doc.text("Class: "+classs,105,y,{align:"center"});
+y+=10;
+doc.text("Amount: Rs "+amount,105,y,{align:"center"});
+y+=10;
+doc.text("Date: "+date,105,y,{align:"center"});
 
-// WATERMARK
-doc.setTextColor(200,200,200);
-doc.setFontSize(60);
-doc.text("PAID",105,200,{angle:45,align:"center"});
+// ❤️ THANK YOU TEXT
+doc.setFontSize(12);
+doc.setTextColor(100);
+doc.text("Thank you for your payment",105,y+20,{align:"center"});
+
+// 🔥 WATERMARK (image)
+fetch(watermarkUrl)
+.then(res => res.blob())
+.then(blob2 => {
+
+let reader2 = new FileReader();
+
+reader2.onload = function(){
+
+doc.addImage(reader2.result,"PNG",30,120,150,150);
 
 // SAVE
 doc.save("SJJ_Receipt.pdf");
+
+};
+
+reader2.readAsDataURL(blob2);
+
+});
 
 };
 
