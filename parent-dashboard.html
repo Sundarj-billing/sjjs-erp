@@ -431,29 +431,40 @@ window.location = "parent-login.html";
 }
 // UPDATE
 async function updatePayment(paidAmount){
+
 if(!window.studentData){
 alert("Data not loaded properly");
 return;
 }
+
 let data = window.studentData;
 
-// আগের paid amount
 let previousPaid = Number(data.Amount_Paid || 0);
-
-// নতুন total paid
 let newPaid = previousPaid + paidAmount;
 
-// নতুন due (simple version full payment)
 let newDue = 0;
+
+// 🆕 CURRENT DATE
+let paymentDate = new Date().toLocaleString("en-IN");
 
 await db.collection("students_billing").doc(id).update({
 Balance_Due: newDue,
-Amount_Paid: newPaid
+Amount_Paid: newPaid,
+Payment_Date: firebase.firestore.FieldValue.serverTimestamp()
 });
-
-// local update (important)
+// 🔥 SAVE PAYMENT HISTORY
+await db.collection("payment_history").add({
+Student_ID: data.Student_ID,
+Name: data.Student_Name,
+Class: data.Class,
+Amount: paidAmount,
+Date: new Date().toLocaleString("en-IN"),
+Receipt_No: "SJ-"+Date.now()
+});
+// local update
 data.Amount_Paid = newPaid;
 data.Balance_Due = newDue;
+data.Payment_Date = paymentDate;
 
 loadData();
 }
