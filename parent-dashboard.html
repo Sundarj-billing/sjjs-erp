@@ -503,6 +503,7 @@ Class: data.Class,
 Amount: paidAmount,
 Date: new Date().toLocaleString("en-IN"),
 Receipt_No: "SJ-"+Date.now()
+  timestamp: Date.now()
 });
 // local update
 data.Amount_Paid = newPaid;
