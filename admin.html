@@ -428,37 +428,41 @@ table.innerHTML+=`
 
 function loadPayments(){
 
-db.collection("stats").doc("payments_list").get().then(doc=>{
-
-let data = doc.data()
+db.collection("payment_history")
+.orderBy("timestamp","desc") // 🔥 main line
+.onSnapshot(snapshot=>{
 
 let table=document.getElementById("paymentTable")
 
 table.innerHTML=`
 <tr>
 <th>ID</th>
-<th>Student</th>
+<th>Name</th>
+<th>Class</th>
 <th>Amount</th>
 <th>Date</th>
+<th>Receipt</th>
 </tr>
 `
-if(!data || !data.list) return
 
-data.list.forEach(p=>{
+snapshot.forEach(doc=>{
+
+let p = doc.data()
 
 table.innerHTML+=`
 <tr>
 <td>${p.Student_ID || "-"}</td>
-<td>${p.name || "-"}</td>
-<td>₹${p.amount || 0}</td>
-<td>${p.date ? new Date(p.date).toLocaleString() : "-"}</td>
+<td>${p.Name || "-"}</td>
+<td>${p.Class || "-"}</td>
+<td style="color:green;font-weight:bold;">₹${p.Amount || 0}</td>
+<td>${p.Date || "-"}</td>
+<td>${p.Receipt_No || "-"}</td>
 </tr>
 `
 
 })
 
 })
-
 }
   
 function updateChart(months){
