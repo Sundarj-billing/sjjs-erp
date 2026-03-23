@@ -95,6 +95,13 @@ margin:0 auto 10px auto;
 border-radius:50%;
 box-shadow:0 4px 10px rgba(0,0,0,0.2);
 }
+  #historyBox .row{
+background:#f0fdf4;
+padding:8px;
+border-radius:6px;
+margin:5px 0;
+font-size:13px;
+}
 </style>
 
 </head>
@@ -229,11 +236,48 @@ ${action}
 </div>
 
 <div class="card">
+<h3>📜 Payment History</h3>
+<div id="historyBox">Loading...</div>
+</div>
+
+<div class="card">
 <button class="logoutBtn" onclick="logout()">Logout</button>
 </div>
 
 `;
+  loadHistory();
 }
+}
+  // HISTORY BUTTON
+  async function loadHistory(){
+
+let historyHTML = "";
+
+let snapshot = await db.collection("payment_history")
+.where("Student_ID","==", id)
+.orderBy("Date","desc")
+.limit(5)
+.get();
+
+if(snapshot.empty){
+historyHTML = "<p>No payment history found</p>";
+}else{
+
+snapshot.forEach(doc => {
+let d = doc.data();
+
+historyHTML += `
+<div class="row">
+<span>₹${d.Amount}</span>
+<span>${d.Date}</span>
+</div>
+`;
+});
+
+}
+
+document.getElementById("historyBox").innerHTML = historyHTML;
+
 }
   
 // PAYMENT POPUP
