@@ -321,9 +321,13 @@ let data = window.studentData;
 
 showReceipt(data,amount);
 
-// 🔥 FIXED
 let actualAmount = Math.round(amount / 1.02);
+
+// 🔥 FIRST update
 await updatePayment(actualAmount);
+
+// 🔥 THEN show receipt
+showReceipt(data,amount);
 
 }
 
@@ -337,7 +341,7 @@ function showReceipt(data,amount){
 
 currentReceiptNo = "SJ-"+Date.now();
 
-rNo.innerText = receiptNo;
+rNo.innerText = currentReceiptNo;
 rName.innerText = data.Student_Name;
 rID.innerText = data.Student_ID;
 rClass.innerText = data.Class;
