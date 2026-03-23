@@ -184,6 +184,7 @@ window.location="parent-login.html";
 }
 
 let finalPayAmount = 0;
+let currentReceiptNo = "";
 
 // LOAD DATA
 async function loadData(){
@@ -334,7 +335,7 @@ new Razorpay(options).open();
 // RECEIPT SHOW
 function showReceipt(data,amount){
 
-let receiptNo = "SJ-"+Date.now();
+currentReceiptNo = "SJ-"+Date.now();
 
 rNo.innerText = receiptNo;
 rName.innerText = data.Student_Name;
@@ -503,7 +504,7 @@ Name: data.Student_Name,
 Class: data.Class,
 Amount: paidAmount,
 Date: new Date().toLocaleString("en-IN"),
-Receipt_No: "SJ-"+Date.now(),
+Receipt_No: currentReceiptNo
 timestamp: Date.now()
 });
 // local update
