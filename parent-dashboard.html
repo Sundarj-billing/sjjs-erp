@@ -319,16 +319,16 @@ alert("✅ Payment Successful");
 
 let data = window.studentData;
 
-showReceipt(data,amount);
+// 🔥 generate receipt FIRST
+currentReceiptNo = "SJ-"+Date.now();
 
 let actualAmount = Math.round(amount / 1.02);
 
-// 🔥 FIRST update
+// 🔥 save with same receipt
 await updatePayment(actualAmount);
 
-// 🔥 THEN show receipt
+// 🔥 show same receipt
 showReceipt(data,amount);
-
 }
 
 };
@@ -338,8 +338,6 @@ new Razorpay(options).open();
 
 // RECEIPT SHOW
 function showReceipt(data,amount){
-
-currentReceiptNo = "SJ-"+Date.now();
 
 rNo.innerText = currentReceiptNo;
 rName.innerText = data.Student_Name;
