@@ -250,22 +250,25 @@ ${action}
 }
 }
   // HISTORY BUTTON
-  async function loadHistory(){
+async function loadHistory(){
 
 let historyHTML = "";
 
 let snapshot = await db.collection("payment_history")
 .where("Student_ID","==", id)
-.orderBy("timestamp","desc") // ✅ NEW
-.limit(5)
-.get();
+.get(); // ❌ no orderBy
 
 if(snapshot.empty){
 historyHTML = "<p>No payment history found</p>";
 }else{
 
-snapshot.forEach(doc => {
-let d = doc.data();
+let docs = snapshot.docs.map(doc => doc.data());
+
+// 🔥 sort (new first)
+docs.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+
+// 🔥 show only 5
+docs.slice(0,5).forEach(d=>{
 
 historyHTML += `
 <div class="row">
@@ -273,6 +276,7 @@ historyHTML += `
 <span>${d.Date}</span>
 </div>
 `;
+
 });
 
 }
