@@ -255,6 +255,7 @@ let historyHTML = "";
 
 let snapshot = await db.collection("payment_history")
 .where("Student_ID","==", id)
+.orderBy("timestamp","desc") // ✅ NEW
 .limit(5)
 .get();
 
