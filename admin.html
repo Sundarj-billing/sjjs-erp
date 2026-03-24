@@ -367,15 +367,13 @@ document.getElementById("todayIncome").innerText="₹"+(d.todayIncome||0)
 document.getElementById("monthCollection").innerText="₹"+(d.monthCollection||0)
 document.getElementById("monthDue").innerText="₹"+(d.totalDue||0)
 document.getElementById("totalDiscount").innerText="₹"+(d.totalDiscount||0)
-setTimeout(()=>{
-updateChart([1000,2000,1500,3000,2500,4000,3500,2000,1800,2200,2600,3000])
-},300)
 let net=(d.totalIncome||0)-(d.totalDiscount||0)
 
 document.getElementById("netAmount").innerText="₹"+net
 
 })
 loadDueStudents()
+loadMonthlyChart()
 }
 
 function loadStudents(){
@@ -466,7 +464,29 @@ table.innerHTML+=`
 
 })
 }
+function loadMonthlyChart(){
 
+let months = Array(12).fill(0)
+
+db.collection("payment_history").get().then(snapshot=>{
+
+snapshot.forEach(doc=>{
+
+let p = doc.data()
+
+if(!p.Date) return
+
+let m = new Date(p.Date).getMonth() // 0-11
+
+months[m] += Number(p.Amount || 0)
+
+})
+
+updateChart(months)
+
+})
+
+}
 function updateChart(months){
 
 let ctx = document.getElementById("incomeChart").getContext("2d");
@@ -480,14 +500,26 @@ labels:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 datasets:[{
 label:"Monthly Collection",
 data:months,
-backgroundColor:"#3b82f6",
+backgroundColor:[
+"#3b82f6",
+"#22c55e",
+"#f59e0b",
+"#ef4444",
+"#7c3aed",
+"#ec4899",
+"#06b6d4",
+"#84cc16",
+"#f97316",
+"#e11d48",
+"#6366f1",
+"#14b8a6"
+],
 borderRadius:8
 }]
 }
 })
 
 }
-
 function searchStudent(){
 
 let val=document.getElementById("search").value.toLowerCase()
