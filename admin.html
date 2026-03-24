@@ -277,7 +277,10 @@ SJJ School
 <div id="payments" class="section">
 
 <h2>Payments</h2>
-
+<button onclick="addPayment()" style="padding:10px 15px;margin-bottom:10px;background:#16a34a;color:white;border:none;border-radius:6px;cursor:pointer;">
+➕ Add Payment
+</button>
+  
 <table id="paymentTable">
 <tr>
 <th>ID</th>
@@ -476,15 +479,45 @@ let p = doc.data()
 
 if(!p.Date) return
 
-let m = new Date(p.Date).getMonth() // 0-11
+// 🔥 DATE FIX
+let dateParts = p.Date.split(",")[0].split("/")
 
-months[m] += Number(p.Amount || 0)
+let month = parseInt(dateParts[1]) - 1
+
+months[month] += Number(p.Amount || 0)
 
 })
 
 updateChart(months)
 
 })
+
+}
+  function addPayment(){
+
+let id = prompt("Enter Student ID")
+let name = prompt("Enter Name")
+let cls = prompt("Enter Class")
+let amount = prompt("Enter Amount")
+
+if(!id || !amount){
+alert("Fill required fields")
+return
+}
+
+// receipt auto
+let receipt = "SJ-" + Date.now()
+
+db.collection("payment_history").add({
+Student_ID: id,
+Name: name,
+Class: cls,
+Amount: Number(amount),
+Date: new Date(), // 🔥 important
+Receipt_No: receipt
+})
+
+alert("Payment Added ✅")
 
 }
 function updateChart(months){
