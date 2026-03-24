@@ -367,6 +367,7 @@ document.getElementById("todayIncome").innerText="₹"+(d.todayIncome||0)
 document.getElementById("monthCollection").innerText="₹"+(d.monthCollection||0)
 document.getElementById("monthDue").innerText="₹"+(d.totalDue||0)
 document.getElementById("totalDiscount").innerText="₹"+(d.totalDiscount||0)
+updateChart([1000,2000,1500,3000,2500,4000,3500,2000,1800,2200,2600,3000])
 
 let net=(d.totalIncome||0)-(d.totalDiscount||0)
 
@@ -465,27 +466,22 @@ table.innerHTML+=`
 })
 }
   
+let chart;
+
 function updateChart(months){
 
-let ctx=document.getElementById("incomeChart")
+let ctx = document.getElementById("incomeChart").getContext("2d");
 
-if(chart) chart.destroy()
+if(chart) chart.destroy();
 
-chart=new Chart(ctx,{
+chart = new Chart(ctx,{
 type:"bar",
 data:{
 labels:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
 datasets:[{
 label:"Monthly Collection",
 data:months,
-backgroundColor:[
-"#3b82f6",
-"#22c55e",
-"#f59e0b",
-"#ef4444",
-"#7c3aed",
-"#ec4899"
-],
+backgroundColor:"#3b82f6",
 borderRadius:8
 }]
 }
