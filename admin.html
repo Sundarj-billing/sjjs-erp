@@ -367,8 +367,9 @@ document.getElementById("todayIncome").innerText="₹"+(d.todayIncome||0)
 document.getElementById("monthCollection").innerText="₹"+(d.monthCollection||0)
 document.getElementById("monthDue").innerText="₹"+(d.totalDue||0)
 document.getElementById("totalDiscount").innerText="₹"+(d.totalDiscount||0)
+setTimeout(()=>{
 updateChart([1000,2000,1500,3000,2500,4000,3500,2000,1800,2200,2600,3000])
-
+},300)
 let net=(d.totalIncome||0)-(d.totalDiscount||0)
 
 document.getElementById("netAmount").innerText="₹"+net
@@ -465,8 +466,6 @@ table.innerHTML+=`
 
 })
 }
-  
-let chart;
 
 function updateChart(months){
 
