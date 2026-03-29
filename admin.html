@@ -367,18 +367,48 @@ let d=doc.data()
 document.getElementById("totalStudents").innerText=d.totalStudents||0
 document.getElementById("totalIncome").innerText="₹"+(d.totalIncome||0)
 document.getElementById("todayIncome").innerText="₹"+(d.todayIncome||0)
-document.getElementById("monthCollection").innerText="₹"+(d.monthCollection||0)
+
+// ❌ removed old monthCollection
+
 document.getElementById("monthDue").innerText="₹"+(d.totalDue||0)
 document.getElementById("totalDiscount").innerText="₹"+(d.totalDiscount||0)
-let net=(d.totalIncome||0)-(d.totalDiscount||0)
 
+let net=(d.totalIncome||0)-(d.totalDiscount||0)
 document.getElementById("netAmount").innerText="₹"+net
 
 })
+
+// 🔥 NEW monthly collection (same as chart)
+db.collection("payment_history").get().then(snapshot=>{
+
+let monthCollection = 0
+let today = new Date()
+let currentMonth = today.getMonth()
+let currentYear = today.getFullYear()
+
+snapshot.forEach(doc=>{
+
+let p = doc.data()
+let amount = Number(p.Amount || 0)
+
+let date = p.Date?.toDate ? p.Date.toDate() : new Date(p.Date)
+
+if(
+date.getMonth() === currentMonth &&
+date.getFullYear() === currentYear
+){
+monthCollection += amount
+}
+
+})
+
+document.getElementById("monthCollection").innerText = "₹"+monthCollection
+
+})
+
 loadDueStudents()
 loadMonthlyChart()
 }
-
 function loadStudents(){
 
 db.collection("students_billing").limit(20).get().then(snap=>{
