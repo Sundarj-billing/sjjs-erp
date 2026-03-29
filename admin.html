@@ -517,6 +517,13 @@ Amount: Number(amount),
 Date: new Date(), // 🔥 important
 Receipt_No: receipt
 })
+    let statsRef = db.collection("stats").doc("dashboard")
+
+statsRef.update({
+monthCollection: firebase.firestore.FieldValue.increment(Number(amount)),
+totalIncome: firebase.firestore.FieldValue.increment(Number(amount)),
+todayIncome: firebase.firestore.FieldValue.increment(Number(amount))
+})
 
 alert("Payment Added ✅")
 
