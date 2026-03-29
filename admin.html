@@ -360,66 +360,25 @@ if(sec=="payments") loadPayments()
 
 function loadDashboard(){
 
-// 🔹 Stats (same)
 db.collection("stats").doc("dashboard").get().then(doc=>{
 
-let d = doc.data() || {}
+let d=doc.data()
 
-document.getElementById("totalStudents").innerText = d.totalStudents || 0
-document.getElementById("totalIncome").innerText = "₹" + (d.totalIncome || 0)
-document.getElementById("todayIncome").innerText = "₹" + (d.todayIncome || 0)
-document.getElementById("monthDue").innerText = "₹" + (d.totalDue || 0)
-document.getElementById("totalDiscount").innerText = "₹" + (d.totalDiscount || 0)
+document.getElementById("totalStudents").innerText=d.totalStudents||0
+document.getElementById("totalIncome").innerText="₹"+(d.totalIncome||0)
+document.getElementById("todayIncome").innerText="₹"+(d.todayIncome||0)
+document.getElementById("monthCollection").innerText="₹"+(d.monthCollection||0)
+document.getElementById("monthDue").innerText="₹"+(d.totalDue||0)
+document.getElementById("totalDiscount").innerText="₹"+(d.totalDiscount||0)
+let net=(d.totalIncome||0)-(d.totalDiscount||0)
 
-let net = (d.totalIncome || 0) - (d.totalDiscount || 0)
-document.getElementById("netAmount").innerText = "₹" + net
-
-})
-
-// 🔥 FINAL MONTH COLLECTION FIX
-db.collection("payment_history").get().then(snapshot=>{
-
-let total = 0
-let now = new Date()
-
-snapshot.forEach(doc=>{
-
-let p = doc.data()
-
-if(!p || !p.Date || !p.Amount) return
-
-let payDate
-
-// ✅ Handle Firestore Timestamp
-if(typeof p.Date === "object" && typeof p.Date.toDate === "function"){
-    payDate = p.Date.toDate()
-}
-// ✅ Handle string date
-else{
-    payDate = new Date(p.Date)
-}
-
-// ❌ Skip invalid date
-if(isNaN(payDate.getTime())) return
-
-// ✅ CURRENT MONTH FILTER
-if(
-payDate.getMonth() === now.getMonth() &&
-payDate.getFullYear() === now.getFullYear()
-){
-total += Number(p.Amount)
-}
+document.getElementById("netAmount").innerText="₹"+net
 
 })
-
-// ✅ FINAL OUTPUT
-document.getElementById("monthCollection").innerText = "₹" + total
-
-})
-
 loadDueStudents()
 loadMonthlyChart()
 }
+
 function loadStudents(){
 
 db.collection("students_billing").limit(20).get().then(snap=>{
@@ -521,8 +480,9 @@ let p = doc.data()
 if(!p.Date) return
 
 // 🔥 DATE FIX
-let d = p.Date.toDate ? p.Date.toDate() : new Date(p.Date)
-let month = d.getMonth()
+let dateParts = p.Date.split(",")[0].split("/") 
+
+let month = parseInt(dateParts[1]) - 1
 
 
 months[month] += Number(p.Amount || 0)
