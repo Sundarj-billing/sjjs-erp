@@ -360,23 +360,23 @@ if(sec=="payments") loadPayments()
 
 function loadDashboard(){
 
-// 🔹 Stats data (same thakbe)
+// 🔹 Stats (same)
 db.collection("stats").doc("dashboard").get().then(doc=>{
 
-let d=doc.data()
+let d = doc.data() || {}
 
-document.getElementById("totalStudents").innerText=d.totalStudents||0
-document.getElementById("totalIncome").innerText="₹"+(d.totalIncome||0)
-document.getElementById("todayIncome").innerText="₹"+(d.todayIncome||0)
-document.getElementById("monthDue").innerText="₹"+(d.totalDue||0)
-document.getElementById("totalDiscount").innerText="₹"+(d.totalDiscount||0)
+document.getElementById("totalStudents").innerText = d.totalStudents || 0
+document.getElementById("totalIncome").innerText = "₹" + (d.totalIncome || 0)
+document.getElementById("todayIncome").innerText = "₹" + (d.todayIncome || 0)
+document.getElementById("monthDue").innerText = "₹" + (d.totalDue || 0)
+document.getElementById("totalDiscount").innerText = "₹" + (d.totalDiscount || 0)
 
-let net=(d.totalIncome||0)-(d.totalDiscount||0)
-document.getElementById("netAmount").innerText="₹"+net
+let net = (d.totalIncome || 0) - (d.totalDiscount || 0)
+document.getElementById("netAmount").innerText = "₹" + net
 
 })
 
-// 🔥 MONTH COLLECTION AUTO CALCULATE
+// 🔥 FINAL MONTH COLLECTION FIX
 db.collection("payment_history").get().then(snapshot=>{
 
 let total = 0
@@ -386,20 +386,33 @@ snapshot.forEach(doc=>{
 
 let p = doc.data()
 
-if(!p.Date) return
+if(!p || !p.Date || !p.Amount) return
 
-// ✅ Date fix
-let payDate = p.Date.toDate ? p.Date.toDate() : new Date(p.Date)
+let payDate
 
+// ✅ Handle Firestore Timestamp
+if(typeof p.Date === "object" && typeof p.Date.toDate === "function"){
+    payDate = p.Date.toDate()
+}
+// ✅ Handle string date
+else{
+    payDate = new Date(p.Date)
+}
+
+// ❌ Skip invalid date
+if(isNaN(payDate.getTime())) return
+
+// ✅ CURRENT MONTH FILTER
 if(
 payDate.getMonth() === now.getMonth() &&
 payDate.getFullYear() === now.getFullYear()
 ){
-total += Number(p.Amount || 0)
+total += Number(p.Amount)
 }
 
 })
 
+// ✅ FINAL OUTPUT
 document.getElementById("monthCollection").innerText = "₹" + total
 
 })
@@ -407,7 +420,6 @@ document.getElementById("monthCollection").innerText = "₹" + total
 loadDueStudents()
 loadMonthlyChart()
 }
-
 function loadStudents(){
 
 db.collection("students_billing").limit(20).get().then(snap=>{
@@ -509,9 +521,9 @@ let p = doc.data()
 if(!p.Date) return
 
 // 🔥 DATE FIX
-let dateParts = p.Date.split(",")[0].split("/")
+let d = p.Date.toDate ? p.Date.toDate() : new Date(p.Date)
+let month = d.getMonth()
 
-let month = parseInt(dateParts[1]) - 1
 
 months[month] += Number(p.Amount || 0)
 
