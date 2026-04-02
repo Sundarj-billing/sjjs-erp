@@ -648,12 +648,19 @@ if(!data || !data.list) return
 
 data.list.forEach(s=>{
 
+let f = s.mapValue.fields
+
+let id = f.Student_ID?.stringValue || "N/A"
+let name = f.Student_Name?.stringValue || "-"
+let cls = f.Class?.stringValue || "-"
+let due = f.Due?.integerValue || 0
+
 table.innerHTML+=`
 <tr>
-<td>${s.Student_ID || "N/A"}</td>
-<td>${s.Student_Name || "-"}</td>
-<td>${s.Class || "-"}</td>
-<td>₹${s.Due || 0}</td>
+<td>${id}</td>
+<td>${name}</td>
+<td>${cls}</td>
+<td>₹${due}</td>
 </tr>
 `
 
@@ -662,6 +669,7 @@ table.innerHTML+=`
 })
 
 }
+  
 function generatePassword(studentID){
 return studentID.replace("-", "@")
 }
