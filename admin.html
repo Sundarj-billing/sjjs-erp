@@ -648,12 +648,11 @@ if(!data || !data.list) return
 
 data.list.forEach(s=>{
 
-let f = s.mapValue.fields
-
-let id = f.Student_ID?.stringValue || "N/A"
-let name = f.Student_Name?.stringValue || "-"
-let cls = f.Class?.stringValue || "-"
-let due = f.Due?.integerValue || 0
+// ✅ DIRECT ACCESS (NO mapValue needed)
+let id = s.Student_ID || "N/A"
+let name = s.Student_Name || "-"
+let cls = s.Class || "-"
+let due = s.Due || 0
 
 table.innerHTML+=`
 <tr>
