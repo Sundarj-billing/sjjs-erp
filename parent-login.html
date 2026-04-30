@@ -180,16 +180,9 @@ alert("Enter Student ID first");
 return;
 }
 
-let doc=await db.collection("students_billing").doc(id).get();
-
-if(!doc.exists){
-alert("Student not found");
-return;
+alert("Please contact school office: +917005240890")
 }
 
-alert("Contact school for password reset");
-
-}
 
 // 🔥 Service Worker
 if("serviceWorker" in navigator){
